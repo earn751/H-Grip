@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto App - Menu & Bonus</title>
+    <title>NebulaTraderS - Crypto App</title>
     <!-- Telegram Mini App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Firebase SDKs -->
@@ -219,6 +219,33 @@
         .status-betting { color: #ffeb3b; }
         .bg-accent-green { background-color: var(--accent-green); }
         .text-win-color { color: var(--win-color); }
+        
+        /* Blue verified tick */
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            background: #1DA1F2;
+            border-radius: 50%;
+            margin-left: 4px;
+        }
+        
+        /* Real-time balance animation */
+        @keyframes balance-update {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .balance-updated {
+            animation: balance-update 0.5s ease-in-out;
+        }
+        
+        /* Referral live updates */
+        .referral-update {
+            transition: all 0.3s ease;
+        }
     </style>
     <script>
         tailwind.config = {
@@ -323,7 +350,7 @@
                     <span class="font-medium">Bonus</span>
                 </div>
                 <hr class="border-white/10 my-1">
-                <div class="menu-item justify-between bg-[#332A42] rounded-xl px-4 mt-6 !py-4 shadow-inner" onclick="showToast('Opening Live Support...', 'app-accent')">
+                <div class="menu-item justify-between bg-[#332A42] rounded-xl px-4 mt-6 !py-4 shadow-inner" onclick="openSupport()">
                     <div class="flex items-center">
                         <i data-lucide="message-square" class="list-icon w-6 h-6 mr-4 text-app-accent"></i>
                         <span class="font-medium text-white">Live Support</span>
@@ -348,7 +375,7 @@
             <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">Bonus & Rewards</h1>
             <div class="flex items-center space-x-3">
                 <div class="flex items-center text-lg font-bold">
-                    <span class="mr-1">$</span><span id="header-balance-bonus">0.00</span>
+                    <span class="mr-1">$</span><span id="header-balance-bonus" class="balance-display">0.00</span>
                 </div>
                 <button onclick="showToast('Notifications clicked', 'app-accent')"><i data-lucide="bell" class="w-6 h-6"></i></button>
             </div>
@@ -392,7 +419,7 @@
             </div>
             
             <div class="p-4 pt-0 text-center">
-                <button onclick="showToast('Claim your free spin!', 'app-accent')" class="w-full bg-app-accent text-primary-dark py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-app-accent/50 transition-shadow">
+                <button onclick="claimDailyBonus()" class="w-full bg-app-accent text-primary-dark py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-app-accent/50 transition-shadow">
                     CLAIM DAILY BONUS
                 </button>
             </div>
@@ -417,7 +444,7 @@
         </header>
 
         <main class="p-4 sm:p-8 text-white">
-            <div id="balance" class="text-xl font-semibold mb-4 text-green-400">Balance: $0.00 USDT</div>
+            <div id="balance" class="text-xl font-semibold mb-4 text-green-400 balance-display">Balance: $0.00 USDT</div>
             
             <div class="w-full max-w-2xl flex flex-col gap-3 mb-4">
                 <div id="global-history-container" class="bg-gray-800 p-3 rounded-lg shadow-xl">
@@ -447,7 +474,7 @@
             </div>
 
             <div id="live-bets" class="w-full max-w-2xl bg-gray-800 p-4 rounded-lg shadow-2xl mx-auto">
-                <h3 class="text-xl font-semibold mb-3 text-left">Live Bets</h3>
+                <h3 class="text-xl font-semibold mb-3 text-left">Live Bets (Demo)</h3>
                 <table class="min-w-full text-sm text-left text-gray-400">
                     <thead class="text-xs text-gray-200 uppercase bg-gray-700 rounded-t-lg">
                         <tr>
@@ -478,9 +505,9 @@
             <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg border border-white/10">
                 <h2 class="text-sm text-white/70 mb-2">Lifetime Referral Rewards</h2>
                 <div class="flex justify-between items-center">
-                    <p class="text-3xl font-bold text-app-accent">$0.00 <span class="text-white/70 text-sm">USDT</span></p>
+                    <p class="text-3xl font-bold text-app-accent" id="lifetime-rewards">$0.00 <span class="text-white/70 text-sm">USDT</span></p>
                     <button class="text-white/70 flex items-center text-sm hover:text-white" onclick="showToast('Viewing network details...', 'app-accent')">
-                        Network: 0 <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
+                        Network: <span id="referral-network">0</span> <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
                     </button>
                 </div>
             </div>
@@ -488,25 +515,25 @@
                 <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg flex justify-between items-center">
                     <div>
                         <p class="text-sm text-white/70">Available Commission Rewards</p>
-                        <p class="text-xl font-bold text-app-accent">$0.00</p>
-                        <p class="text-xs text-white/50">Total Received: $0</p>
+                        <p class="text-xl font-bold text-app-accent" id="commission-rewards">$0.00</p>
+                        <p class="text-xs text-white/50">Total Received: $<span id="total-commission">0</span></p>
                     </div>
-                    <button class="bg-app-accent text-primary-dark px-4 py-2 rounded-lg font-bold text-sm" onclick="showToast('Claiming commission...', 'app-accent')">Claim</button>
+                    <button class="bg-app-accent text-primary-dark px-4 py-2 rounded-lg font-bold text-sm" onclick="claimCommission()">Claim</button>
                 </div>
                 <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg flex justify-between items-center">
                     <div>
                         <p class="text-sm text-white/70">Available Referral Rewards</p>
-                        <p class="text-xl font-bold text-app-accent">$0.00</p>
-                        <p class="text-xs text-white/50">Locked Rewards: $0</p>
+                        <p class="text-xl font-bold text-app-accent" id="referral-rewards">$0.00</p>
+                        <p class="text-xs text-white/50">Locked Rewards: $<span id="locked-rewards">0</span></p>
                     </div>
-                    <button class="bg-app-accent text-primary-dark px-4 py-2 rounded-lg font-bold text-sm" onclick="showToast('Claiming referral rewards...', 'app-accent')">Claim</button>
+                    <button class="bg-app-accent text-primary-dark px-4 py-2 rounded-lg font-bold text-sm" onclick="claimReferralRewards()">Claim</button>
                 </div>
             </div>
 
             <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg mt-4 border border-white/10">
                 <h3 class="text-white font-semibold mb-2">Referral Link</h3>
                 <div class="flex items-center bg-deep-purple/50 p-3 rounded-lg border border-white/10">
-                    <input type="text" id="referral-link" value="https://t.me/@NebulaTraderS_Bot?start=ref{user_id" readonly class="flex-grow bg-transparent text-sm text-app-accent focus:outline-none" />
+                    <input type="text" id="referral-link" value="https://t.me/NebulaTraderS_Bot?start=ref_" readonly class="flex-grow bg-transparent text-sm text-app-accent focus:outline-none" />
                     <button onclick="copyToClipboard('referral-link')" class="bg-app-accent text-primary-dark px-3 py-1 rounded-lg font-bold text-xs flex items-center ml-2">
                         <i data-lucide="copy" class="w-4 h-4 mr-1"></i> Copy
                     </button>
@@ -523,12 +550,8 @@
                         <span>Username</span>
                         <span>Available Rewards</span>
                     </div>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between"><span>r3p2vdx2z6</span> <span class="text-app-accent">+ $0.021</span></div>
-                        <div class="flex justify-between"><span>6awz6756mt</span> <span class="text-app-accent">+ $0.016</span></div>
-                        <div class="flex justify-between"><span>rcn5qms5vt</span> <span class="text-app-accent">+ $0.0037</span></div>
-                        <div class="flex justify-between"><span>cm6wafp3ty</span> <span class="text-app-accent">+ $0.016</span></div>
-                        <div class="flex justify-between"><span>76s5syrquv</span> <span class="text-app-accent">+ $0.015</span></div>
+                    <div id="commission-list" class="space-y-2 text-sm">
+                        <!-- Dynamic commission list will be populated here -->
                     </div>
                 </div>
             </div>
@@ -558,6 +581,9 @@
                         <div>
                             <div class="flex items-center text-xl font-bold">
                                 <span id="profile-username">telegram_user</span>
+                                <div class="verified-badge">
+                                    <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                                </div>
                             </div>
                             <div class="text-xs text-white/70 flex items-center mt-0.5">
                                 <span class="mr-1">ID: <span id="profile-uid">000000</span></span>
@@ -586,7 +612,7 @@
             <div class="p-4 bg-primary-dark">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-white/60 font-medium flex items-center"><i data-lucide="wallet" class="w-5 h-5 mr-2 text-app-accent"></i>Total Balance</h2>
-                    <div class="flex items-center text-xl font-bold text-app-accent">
+                    <div class="flex items-center text-xl font-bold text-app-accent balance-display">
                         <i data-lucide="dollar-sign" class="w-5 h-5 mr-1"></i>
                         <span id="profile-total-balance">0.00</span>
                         <span class="text-sm ml-1 text-white/80">USDT</span>
@@ -609,9 +635,9 @@
             <div class="p-4 bg-card-bg-dark mt-2 rounded-t-xl">
                 <h2 class="text-white text-lg font-bold mb-3">Stats</h2>
                 <div class="grid grid-cols-3 gap-4 text-center">
-                    <div class="p-3 bg-deep-purple rounded-lg border border-white/10"><p class="text-xl font-bold text-app-accent">0</p><p class="text-xs text-white/70">Total Wins</p></div>
-                    <div class="p-3 bg-deep-purple rounded-lg border border-white/10"><p class="text-xl font-bold text-app-accent">0</p><p class="text-xs text-white/70">Total Bets</p></div>
-                    <div class="p-3 bg-deep-purple rounded-lg border border-white/10"><p class="text-xl font-bold text-app-accent flex justify-center items-center"><i data-lucide="dollar-sign" class="w-4 h-4 mr-0.5"></i><span>0</span></p><p class="text-xs text-white/70">Total Wagered</p></div>
+                    <div class="p-3 bg-deep-purple rounded-lg border border-white/10"><p class="text-xl font-bold text-app-accent" id="total-wins">0</p><p class="text-xs text-white/70">Total Wins</p></div>
+                    <div class="p-3 bg-deep-purple rounded-lg border border-white/10"><p class="text-xl font-bold text-app-accent" id="total-bets">0</p><p class="text-xs text-white/70">Total Bets</p></div>
+                    <div class="p-3 bg-deep-purple rounded-lg border border-white/10"><p class="text-xl font-bold text-app-accent flex justify-center items-center"><i data-lucide="dollar-sign" class="w-4 h-4 mr-0.5"></i><span id="total-wagered">0</span></p><p class="text-xs text-white/70">Total Wagered</p></div>
                 </div>
             </div>
 
@@ -620,9 +646,10 @@
                 <div class="bg-card-bg-dark rounded-xl space-y-1 p-2 border border-white/10">
                     <div class="flex justify-between items-center p-2 hover:bg-deep-purple/50 rounded-lg cursor-pointer" onclick="showToast('General settings clicked', 'app-accent')"><span class="text-white/90">General</span><i data-lucide="chevron-right" class="w-5 h-5 text-white/50"></i></div>
                     <div class="flex justify-between items-center p-2 hover:bg-deep-purple/50 rounded-lg cursor-pointer" onclick="showToast('Security settings clicked', 'app-accent')"><span class="text-white/90">Security</span><i data-lucide="chevron-right" class="w-5 h-5 text-white/50"></i></div>
+                    <div class="flex justify-between items-center p-2 hover:bg-deep-purple/50 rounded-lg cursor-pointer" onclick="openSupport()"><span class="text-white/90">Customer Support</span><i data-lucide="chevron-right" class="w-5 h-5 text-white/50"></i></div>
                     <div class="flex justify-between items-center p-2 hover:bg-deep-purple/50 rounded-lg cursor-pointer" onclick="showToast('Legal documents clicked', 'app-accent')"><span class="text-white/90">Legal</span><i data-lucide="chevron-right" class="w-5 h-5 text-white/50"></i></div>
                 </div>
-                <button class="w-full bg-red-600/70 py-3 rounded-xl text-white font-bold mt-4 hover:bg-red-700/80 transition-colors shadow-lg" onclick="showToast('Logged out successfully.', 'red-500')">Log Out</button>
+                <button class="w-full bg-red-600/70 py-3 rounded-xl text-white font-bold mt-4 hover:bg-red-700/80 transition-colors shadow-lg" onclick="logout()">Log Out</button>
             </div>
         </main>
     </div>
@@ -665,7 +692,7 @@
                 <input type="text" id="transaction-proof" placeholder="Paste your transaction hash here" class="w-full p-3 bg-deep-purple text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-accent">
             </div>
 
-            <button onclick="showToast('Deposit request submitted for review.', 'app-accent')" class="w-full bg-app-accent text-primary-dark py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-app-accent/50 transition-shadow">
+            <button onclick="submitDeposit()" class="w-full bg-app-accent text-primary-dark py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-app-accent/50 transition-shadow">
                 Submit Deposit
             </button>
         </main>
@@ -691,7 +718,7 @@
                 <input type="text" id="withdraw-address" placeholder="Paste your withdrawal address here" class="w-full p-3 bg-deep-purple text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-accent">
             </div>
 
-            <button onclick="showToast('Withdrawal request submitted.', 'app-accent')" class="w-full bg-app-accent text-primary-dark py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-app-accent/50 transition-shadow">
+            <button onclick="submitWithdrawal()" class="w-full bg-app-accent text-primary-dark py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-app-accent/50 transition-shadow">
                 Submit Withdrawal
             </button>
         </main>
@@ -710,7 +737,7 @@
 </div>
 
 <!-- Support Button -->
-<button class="fixed right-4 bottom-24 p-3 rounded-full shadow-lg z-20" style="background-color: var(--accent-color);" onclick="showToast('Opening Support Chat...', 'app-accent')">
+<button class="fixed right-4 bottom-24 p-3 rounded-full shadow-lg z-20" style="background-color: var(--accent-color);" onclick="openSupport()">
     <i data-lucide="headphones" class="w-6 h-6 text-primary-dark"></i>
 </button>
 
@@ -723,6 +750,11 @@
             targetPage.classList.add('active');
             updateNavActiveState(targetPageId);
             document.getElementById('mobile-container').scrollTop = 0;
+            
+            // Update referral page if navigated to it
+            if (targetPageId === 'referral-page') {
+                updateReferralData();
+            }
         }
     }
 
@@ -782,6 +814,14 @@
     let tgUser;
     let userDocRef;
     let currentUserBalance = 0;
+    let referralData = {
+        lifetimeRewards: 0,
+        commissionRewards: 0,
+        referralRewards: 0,
+        totalCommission: 0,
+        lockedRewards: 0,
+        referralNetwork: 0
+    };
 
     function initializeApp() {
         firebase.initializeApp(firebaseConfig);
@@ -816,6 +856,14 @@
             if (doc.exists) {
                 const data = doc.data();
                 currentUserBalance = data.balance || 0;
+                
+                // Update referral data if available
+                if (data.referralData) {
+                    referralData = {...referralData, ...data.referralData};
+                }
+                
+                // Update user stats
+                updateUserStats(data.stats || {});
             } else {
                 // Create new user document
                 currentUserBalance = 0;
@@ -823,6 +871,8 @@
                     username: user.username,
                     first_name: user.first_name,
                     balance: 0,
+                    referralData: referralData,
+                    stats: { totalWins: 0, totalBets: 0, totalWagered: 0 },
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
             }
@@ -838,10 +888,28 @@
         document.getElementById('profile-uid').innerText = user.id;
         const initials = ((user.first_name?.[0] || '') + (user.last_name?.[0] || '')).toUpperCase() || 'TG';
         document.getElementById('profile-initials').innerText = initials;
+        
+        // Update referral link with user ID
+        document.getElementById('referral-link').value = `https://t.me/NebulaTraderS_Bot?start=ref_${user.id}`;
+    }
+
+    function updateUserStats(stats) {
+        document.getElementById('total-wins').innerText = stats.totalWins || 0;
+        document.getElementById('total-bets').innerText = stats.totalBets || 0;
+        document.getElementById('total-wagered').innerText = stats.totalWagered || 0;
     }
 
     function updateAllBalances(newBalance) {
         const formattedBalance = newBalance.toFixed(2);
+        const balanceElements = document.querySelectorAll('.balance-display');
+        
+        balanceElements.forEach(el => {
+            el.classList.add('balance-updated');
+            setTimeout(() => {
+                el.classList.remove('balance-updated');
+            }, 500);
+        });
+        
         document.getElementById('header-balance-bonus').innerText = formattedBalance;
         document.getElementById('profile-total-balance').innerText = formattedBalance;
         // Update Aviator game balance
@@ -866,6 +934,158 @@
             content.style.display = 'none';
             placeholder.style.display = 'flex';
         }
+    }
+
+    // --- Referral System ---
+    function updateReferralData() {
+        document.getElementById('lifetime-rewards').innerText = `$${referralData.lifetimeRewards.toFixed(2)}`;
+        document.getElementById('commission-rewards').innerText = `$${referralData.commissionRewards.toFixed(2)}`;
+        document.getElementById('referral-rewards').innerText = `$${referralData.referralRewards.toFixed(2)}`;
+        document.getElementById('total-commission').innerText = referralData.totalCommission.toFixed(2);
+        document.getElementById('locked-rewards').innerText = referralData.lockedRewards.toFixed(2);
+        document.getElementById('referral-network').innerText = referralData.referralNetwork;
+        
+        // Update commission list with live data
+        updateCommissionList();
+    }
+
+    function updateCommissionList() {
+        const commissionList = document.getElementById('commission-list');
+        commissionList.innerHTML = '';
+        
+        // Generate random commission data for demo
+        const demoUsers = [
+            { username: 'r3p2vdx2z6', reward: (Math.random() * 0.05).toFixed(4) },
+            { username: '6awz6756mt', reward: (Math.random() * 0.05).toFixed(4) },
+            { username: 'rcn5qms5vt', reward: (Math.random() * 0.05).toFixed(4) },
+            { username: 'cm6wafp3ty', reward: (Math.random() * 0.05).toFixed(4) },
+            { username: '76s5syrquv', reward: (Math.random() * 0.05).toFixed(4) }
+        ];
+        
+        demoUsers.forEach(user => {
+            const div = document.createElement('div');
+            div.className = 'flex justify-between referral-update';
+            div.innerHTML = `<span>${user.username}</span> <span class="text-app-accent">+ $${user.reward}</span>`;
+            commissionList.appendChild(div);
+        });
+        
+        // Simulate live updates every 5 seconds
+        setTimeout(updateCommissionList, 5000);
+    }
+
+    function claimCommission() {
+        if (referralData.commissionRewards > 0) {
+            currentUserBalance += referralData.commissionRewards;
+            referralData.totalCommission += referralData.commissionRewards;
+            referralData.commissionRewards = 0;
+            
+            updateUserBalanceInDb(currentUserBalance);
+            updateAllBalances(currentUserBalance);
+            updateReferralData();
+            
+            showToast(`Commission of $${referralData.commissionRewards.toFixed(2)} claimed!`, 'app-accent');
+        } else {
+            showToast('No commission available to claim.', 'red-500');
+        }
+    }
+
+    function claimReferralRewards() {
+        if (referralData.referralRewards > 0) {
+            currentUserBalance += referralData.referralRewards;
+            referralData.referralRewards = 0;
+            
+            updateUserBalanceInDb(currentUserBalance);
+            updateAllBalances(currentUserBalance);
+            updateReferralData();
+            
+            showToast(`Referral rewards of $${referralData.referralRewards.toFixed(2)} claimed!`, 'app-accent');
+        } else {
+            showToast('No referral rewards available to claim.', 'red-500');
+        }
+    }
+
+    // --- Support System ---
+    function openSupport() {
+        const supportUid = '7243906826';
+        const supportUrl = `https://t.me/${supportUid}`;
+        window.open(supportUrl, '_blank');
+        showToast('Opening customer support...', 'app-accent');
+    }
+
+    // --- Bonus System ---
+    function claimDailyBonus() {
+        const bonusAmount = 0.5 + Math.random() * 2; // Random bonus between $0.5 and $2.5
+        currentUserBalance += bonusAmount;
+        
+        updateUserBalanceInDb(currentUserBalance);
+        updateAllBalances(currentUserBalance);
+        
+        showToast(`Daily bonus of $${bonusAmount.toFixed(2)} claimed!`, 'app-accent');
+    }
+
+    // --- Deposit & Withdrawal ---
+    function submitDeposit() {
+        const amount = parseFloat(document.getElementById('deposit-amount').value);
+        const txHash = document.getElementById('transaction-proof').value;
+        
+        if (isNaN(amount) || amount <= 0) {
+            showToast('Please enter a valid deposit amount.', 'red-500');
+            return;
+        }
+        
+        if (!txHash) {
+            showToast('Please provide transaction hash.', 'red-500');
+            return;
+        }
+        
+        showToast('Deposit request submitted for review.', 'app-accent');
+        
+        // In a real app, you would send this to your backend
+        setTimeout(() => {
+            showToast('Deposit confirmed! Balance updated.', 'app-accent');
+            currentUserBalance += amount;
+            updateUserBalanceInDb(currentUserBalance);
+            updateAllBalances(currentUserBalance);
+        }, 3000);
+    }
+
+    function submitWithdrawal() {
+        const amount = parseFloat(document.getElementById('withdraw-amount').value);
+        const address = document.getElementById('withdraw-address').value;
+        
+        if (isNaN(amount) || amount <= 0) {
+            showToast('Please enter a valid withdrawal amount.', 'red-500');
+            return;
+        }
+        
+        if (amount > currentUserBalance) {
+            showToast('Insufficient balance for withdrawal.', 'red-500');
+            return;
+        }
+        
+        if (!address) {
+            showToast('Please provide withdrawal address.', 'red-500');
+            return;
+        }
+        
+        showToast('Withdrawal request submitted.', 'app-accent');
+        
+        // In a real app, you would send this to your backend
+        setTimeout(() => {
+            showToast('Withdrawal processed successfully.', 'app-accent');
+            currentUserBalance -= amount;
+            updateUserBalanceInDb(currentUserBalance);
+            updateAllBalances(currentUserBalance);
+        }, 3000);
+    }
+
+    // --- Logout ---
+    function logout() {
+        showToast('Logged out successfully.', 'red-500');
+        // In a real app, you would clear user session and redirect
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
     }
 
     // --- Aviator Game Script ---
