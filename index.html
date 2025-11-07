@@ -1,377 +1,1062 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI দিয়ে টেলিগ্রামে অটো পোস্টার</title>
+    <title>Crypto App - Menu & Bonus</title>
+    <!-- Telegram Mini App Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons (for simple, clean icons) -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&display=swap');
+        /* Font Configuration */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        /* Custom Dark Theme Colors */
+        :root {
+            --dark-bg: #1A1420; 
+            --accent-color: #CDE051; /* Yellow-green accent */
+            --card-bg: #2B2136;
+        }
+
         body {
-            font-family: 'Noto Sans Bengali', 'Arial', sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
         }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+
+        #mobile-container {
             width: 100%;
-            max-width: 600px;
-            text-align: center;
-        }
-        h1 { color: #0088cc; margin-bottom: 25px; }
-        .button-group { display: flex; gap: 10px; margin-top: 20px; }
-        button {
-            background-color: #0088cc;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-            transition: background-color 0.3s ease;
-            font-weight: bold;
-        }
-        button:hover { background-color: #006699; }
-        button:disabled { background-color: #a0a0a0; cursor: not-allowed; }
-        #stopBtn { background-color: #d9534f; }
-        #stopBtn:hover { background-color: #c9302c; }
-        #status {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: left;
-            background-color: #e9ecef;
-            min-height: 150px;
-            max-height: 300px;
+            max-width: 420px;
+            min-height: 100vh;
+            background-color: var(--dark-bg);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: flex;
+            flex-direction: column;
             overflow-y: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+        }
+
+        /* Hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Hide page */
+        .page {
+            display: none;
+            width: 100%;
+            flex-grow: 1;
+            padding-bottom: 72px; /* Space for bottom navigation */
+            overflow-y: auto;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Menu item style */
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+        .menu-item:hover { background-color: rgba(255, 255, 255, 0.05); }
+        .list-icon { color: #ccc; }
+
+        /* Custom component style */
+        .vip-badge {
+            background: linear-gradient(135deg, #FFD700, #DAA520);
+            color: #4B0082;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-weight: bold;
+            font-size: 0.75rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-card {
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .game-card-image {
+            width: 100%;
+            padding-top: 120%; 
+            background-size: cover;
+            background-position: center;
+        }
+        .heart-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 4px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 50%;
+            color: white;
+            z-index: 10;
+        }
+
+        /* Aviator Style */
+        :root {
+            --aviator-bg: #0a0e17;
+            --main-card: #181c25;
+            --accent-green: #4CAF50;
+            --accent-red: #ff5722;
+            --mult-color: #ff0;
+            --win-color: #4CAF50;
+            --loss-color: #ff5722;
+        }
+        #game-area {
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            background: 
+                linear-gradient(to bottom, #87CEEB 0%, #B0E0E6 100%),
+                linear-gradient(to right, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 100%);
+            background-size: 100% 100%, 300% 100%;
+            background-position: 0 0, 0 0;
+            animation: sky-clouds 40s linear infinite;
+            border: 2px solid #2d3340;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: box-shadow 0.5s ease-out;
+        }
+        @keyframes sky-clouds {
+            0% { background-position: 0 0, 0 0; }
+            100% { background-position: 0 0, -200% 0; }
+        }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 10px rgba(76, 175, 80, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(76, 175, 80, 0.7); }
+            100% { box-shadow: 0 0 10px rgba(76, 175, 80, 0.4); }
+        }
+        #game-area[data-state="FLYING"] {
+             animation: sky-clouds 40s linear infinite, pulse-green 2s infinite ease-in-out;
+        }
+        #plane {
+            position: absolute;
+            bottom: 20px;
+            left: 10px;
+            font-size: 50px;
+            transition: transform 0.1s linear;
+            transform-origin: center;
+            transform: translateX(0) translateY(0) rotate(-15deg);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        }
+        #multiplier {
+            font-size: 80px;
+            font-weight: 800;
+            color: var(--mult-color);
+            transition: all 0.2s ease-in-out;
+            text-shadow: 0 0 15px rgba(255, 255, 0, 0.7);
+        }
+        #crash-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 0, 0, 0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+        }
+        .countdown-bar {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            height: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .countdown-fill {
+            height: 100%;
+            width: 100%;
+            background-color: var(--accent-red);
+            transition: width linear;
+        }
+        .h-item {
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            margin: 2px 4px 2px 0;
+            border-radius: 4px;
             font-size: 14px;
-            line-height: 1.6;
-            border: 1px solid #ccc;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
         }
-        .log-entry { padding-bottom: 5px; border-bottom: 1px solid #ddd; margin-bottom: 5px; }
-        .log-entry.error { color: #d9534f; }
-        .log-entry.success { color: #0088cc; }
-        .log-entry.info { color: #333; }
-        .warning {
-            background-color: #fff3cd;
-            color: #856404;
-            padding: 15px;
-            border: 1px solid #ffeeba;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: left;
-            font-weight: bold;
-        }
-        .security-risk {
-            color: #d9534f;
-            font-weight: bold;
-        }
-        .prompt-suggestion-area {
-            background-color: #e6f7ff;
-            border: 1px solid #91d5ff;
-            color: #096dd9;
-        }
+        .win { background: #00796b; } 
+        .loss { background: #b71c1c; } 
+        .user-win { background: var(--accent-green); }
+        .user-loss { background: var(--accent-red); }
+        .status-win { color: var(--win-color); font-weight: bold; }
+        .status-loss { color: var(--loss-color); font-weight: bold; }
+        .status-betting { color: #ffeb3b; }
+        .bg-accent-green { background-color: var(--accent-green); }
+        .text-win-color { color: var(--win-color); }
     </style>
-</head>
-<body>
-    <div class="container">
-        <h1>AI অটো টেলিগ্রাম পোস্টার 🤖💸</h1>
-        <div class="warning">
-            <strong class="security-risk">অত্যন্ত গুরুত্বপূর্ণ নিরাপত্তা সতর্কতা:</strong> আপনার ব্যক্তিগত API কী এবং বট টোকেন এই ফাইলে প্রকাশ্যে রাখা হয়েছে। এটি আপনার অ্যাকাউন্টের অপব্যবহারের ঝুঁকি বাড়ায়। <br> **ব্যবহারের পরে অবিলম্বে Google AI Studio থেকে আপনার কীটি পরিবর্তন (Regenerate) করে দিন।**
-        </div>
-
-        <!-- Gemini API Key (Hardcoded - ONLY for local testing) -->
-        <input type="hidden" id="geminiKey" value="AIzaSyDuSqth8of1Jff36JPXtAUm_pjfaEC2RdY">
-        
-        <!-- Telegram Bot Token and Chat ID (Hardcoded - ONLY for local testing) -->
-        <input type="hidden" id="botToken" value="8208548925:AAFD0oyhSjaEbxBHCTIvruAZlPDm2HZooJs">
-        <input type="hidden" id="chatId" value="-1003278059507">
-        
-        <!-- *** New Prompt Generation Section using Gemini API *** -->
-        <div class="p-4 prompt-suggestion-area rounded-lg mb-6 text-left shadow-md">
-            <label for="keywordInput" class="block text-lg font-bold text-blue-800 mb-2">✨ নতুন টেমপ্লেট আইডিয়া (AI Prompt Suggestion)</label>
-            <p class="text-sm text-blue-700 mb-3">একটি কীওয়ার্ড লিখুন (যেমন: রেফারেল, নতুন অফার, দৈনিক আয়) এবং AI আপনার জন্য একটি নতুন পোস্টিং টেমপ্লেট তৈরি করে দেবে।</p>
-            <input type="text" id="keywordInput" placeholder="আপনার কীওয়ার্ড লিখুন..." class="w-full p-2 border border-blue-400 rounded-md mb-3 focus:ring-blue-500 focus:border-blue-500 text-gray-800">
-            <button id="suggestPromptBtn" onclick="suggestPrompt()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-md transition duration-150">✨ টেমপ্লেট তৈরি করুন এবং যোগ করুন</button>
-        </div>
-        
-        <div class="button-group">
-            <button id="startBtn" onclick="startPosting()">পোস্টিং শুরু করুন</button>
-            <button id="stopBtn" onclick="stopPosting()" disabled>পোস্টিং বন্ধ করুন</button>
-        </div>
-        <div id="status">
-            স্বয়ংক্রিয় পোস্টিং শুরু করতে উপরের বাটনে ক্লিক করুন...
-        </div>
-    </div>
-
     <script>
-        // Set posting interval to 1 minute (60000 ms) to reduce the risk of spamming.
-        const POST_INTERVAL_MS = 60000; 
-        
-        let intervalId = null;
-        const statusDiv = document.getElementById('status');
-        const startBtn = document.getElementById('startBtn');
-        const stopBtn = document.getElementById('stopBtn');
-        const keywordInput = document.getElementById('keywordInput');
-        const suggestPromptBtn = document.getElementById('suggestPromptBtn');
-
-
-        // Prompts in Bengali to guide the AI for post generation
-        const prompts = [
-            "আমাদের টেলিগ্রাম bot @HiGriP_bot থেকে প্রতিদিন ইনকাম ১০০ টাকা থেকে শুরু। কাজ শুধুমাত্র এড দেখা। আমরা বিকাশ/নগদে পেমেন্ট করে যাচ্ছি। রেফার করলে ইনকাম আরও বাড়বে। এই বিষয়ে একটি আকর্ষণীয় পোস্ট তৈরি করো।",
-            "শুধুমাত্র বিজ্ঞাপন দেখে টেলিগ্রাম বট থেকে কীভাবে আয় করা যায়, তা নিয়ে একটি পোস্ট লেখো। আমাদের বট @HiGriP_bot এবং রেফার করে আয় বাড়ানোর কথাও বলবে। শেষে কিছু অনুপ্রেরণামূলক ইমোজি যোগ করো।",
-            "আমাদের টেলিগ্রাম বট @HiGriP_bot নিয়ে একটি পোস্ট তৈরি করো, যেখানে সহজে আয় করার কথা বলা থাকবে এবং ইউজারদের কাজ শুরু করতে উৎসাহিত করা হবে। বিকাশ/নগদে পেমেন্টের কথা উল্লেখ করবে। পোস্টটি যেন খুব সহজ ভাষায় লেখা হয়।",
-            "বিকাশ/নগদে পেমেন্ট পাওয়া যায় এমন একটি টেলিগ্রাম বট নিয়ে পোস্ট লেখো। রেফার করলে আয় যে কয়েকগুণ বাড়বে, সেটাও উল্লেখ করো। পোস্টে 'টাকা' এবং 'সহজে' শব্দগুলো ব্যবহার করো। 💰"
-        ];
-
-        // Function to log messages to the status box
-        function logMessage(message, type = 'info') {
-            const now = new Date().toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            const logEntry = document.createElement('div');
-            logEntry.className = `log-entry ${type}`;
-            logEntry.innerHTML = `<strong>[${now}]</strong> ${message}`;
-            statusDiv.prepend(logEntry); // Add to the top
-            statusDiv.scrollTop = 0; // Scroll to the top
-        }
-
-        /**
-         * Function to escape reserved characters for Telegram's MarkdownV2 parse mode.
-         * This solves the 'Bad Request: can't parse message' error.
-         * @param {string} text - The raw text from the AI.
-         * @returns {string} The escaped text.
-         */
-        function escapeMarkdownV2(text) {
-            // Characters to escape: _, *, [, ], (, ), ~, `, >, #, +, -, =, |, {, }, ., !
-            // Using a regular expression to find and replace all reserved characters with a preceding backslash.
-            const reservedChars = /([\_*\[\]\(\)~`>#\+\-\=\|\{\}\.!])/g;
-            return text.replace(reservedChars, '\\$1');
-        }
-        
-        // Function to call the Gemini API and generate text (used in auto-post loop)
-        async function generateCreativeText(apiKey) {
-            logMessage("AI দ্বারা নতুন পোস্ট তৈরি করা হচ্ছে...");
-            const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
-            
-            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-
-            const maxRetries = 3;
-            let attempt = 0;
-
-            while (attempt < maxRetries) {
-                try {
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            "contents": [{ "parts": [{ "text": randomPrompt }] }] 
-                        })
-                    });
-
-                    if (response.status === 429 || !response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        const delay = Math.pow(2, attempt) * 1000;
-                        logMessage(`AI API ত্রুটি (${response.status})। ${delay / 1000} সেকেন্ড অপেক্ষা করে আবার চেষ্টা করা হচ্ছে।`, 'error');
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        attempt++;
-                        continue;
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-dark': 'var(--dark-bg)',
+                        'app-accent': 'var(--accent-color)',
+                        'card-bg-dark': 'var(--card-bg)',
+                        'deep-purple': '#332A42',
                     }
-
-                    const data = await response.json();
-                    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                    
-                    if (generatedText) {
-                        logMessage("পোস্ট সফলভাবে তৈরি হয়েছে!", 'success');
-                        return generatedText;
-                    } else {
-                        throw new Error("AI থেকে কোনো টেক্সট পাওয়া যায়নি বা রেসপন্স স্ট্রাকচার ভুল।");
-                    }
-                } catch (error) {
-                    attempt++;
-                    if (attempt >= maxRetries) {
-                         logMessage(`AI থেকে পোস্ট তৈরিতে চূড়ান্ত ত্রুটি: ${error.message}`, 'error');
-                         return null;
-                    }
-                    const delay = Math.pow(2, attempt) * 1000;
-                    logMessage(`নেটওয়ার্ক ত্রুটি: ${error.message}. ${delay / 1000} সেকেন্ড পর আবার চেষ্টা করা হচ্ছে।`, 'error');
-                    await new Promise(resolve => setTimeout(resolve, delay));
                 }
-            }
-            return null;
-        }
-
-        // Function to call Gemini API to suggest a new prompt based on a keyword
-        async function suggestPromptFromKeyword(keyword, apiKey) {
-            logMessage(`কীওয়ার্ডের ভিত্তিতে নতুন টেমপ্লেট তৈরি হচ্ছে: "${keyword}"...`);
-            suggestPromptBtn.disabled = true;
-
-            const systemPrompt = "আপনি একটি টেলিগ্রাম চ্যানেলের জন্য সোশ্যাল মিডিয়া প্রোমোশন প্রম্পট জেনারেটর। আপনার কাজ হলো একটি প্রদত্ত কীওয়ার্ডের উপর ভিত্তি করে একটি অত্যন্ত আকর্ষণীয়, সংক্ষিপ্ত বাংলা পোস্টিং টেমপ্লেট তৈরি করা। টেমপ্লেটটি এমনভাবে লিখবেন যাতে ব্যবহারকারীরা @HiGriP_bot ব্যবহার করে বিজ্ঞাপন দেখে অর্থ উপার্জন করতে উৎসাহিত হয় এবং অবশ্যই বিকাশ/নগদে পেমেন্টের কথা উল্লেখ করতে হবে। কোনো ভূমিকা বা ব্যাখ্যা ছাড়াই শুধুমাত্র প্রম্পট টেক্সটটি আউটপুট করুন।";
-            const userQuery = `কীওয়ার্ড: ${keyword}`;
-            
-            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                systemInstruction: {
-                    parts: [{ text: systemPrompt }]
-                },
-            };
-
-            const maxRetries = 3;
-            let attempt = 0;
-            let suggestedPrompt = null;
-
-            while (attempt < maxRetries) {
-                try {
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (response.status === 429 || !response.ok) {
-                        const delay = Math.pow(2, attempt) * 1000;
-                        logMessage(`AI API ত্রুটি (${response.status})। ${delay / 1000} সেকেন্ড অপেক্ষা করে আবার চেষ্টা করা হচ্ছে।`, 'error');
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        attempt++;
-                        continue;
-                    }
-
-                    const data = await response.json();
-                    suggestedPrompt = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                    
-                    if (suggestedPrompt) {
-                        logMessage("নতুন পোস্টিং টেমপ্লেট সফলভাবে তৈরি হয়েছে!", 'success');
-                        break; // Success
-                    } else {
-                        throw new Error("AI থেকে কোনো টেক্সট পাওয়া যায়নি বা রেসপন্স স্ট্রাকচার ভুল।");
-                    }
-                } catch (error) {
-                    attempt++;
-                    if (attempt >= maxRetries) {
-                         logMessage(`AI থেকে নতুন টেমপ্লেট তৈরিতে চূড়ান্ত ত্রুটি: ${error.message}`, 'error');
-                         break;
-                    }
-                    const delay = Math.pow(2, attempt) * 1000;
-                    logMessage(`নেটওয়ার্ক ত্রুটি: ${error.message}. ${delay / 1000} সেকেন্ড পর আবার চেষ্টা করা হচ্ছে।`, 'error');
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
-            }
-            
-            suggestPromptBtn.disabled = false;
-            return suggestedPrompt;
-        }
-
-        // Handler for the Suggest Prompt button
-        async function suggestPrompt() {
-            const keyword = keywordInput.value.trim();
-            if (!keyword) {
-                logMessage("অনুগ্রহ করে টেমপ্লেট তৈরি করার জন্য একটি কীওয়ার্ড লিখুন।", 'error');
-                return;
-            }
-            
-            const geminiKey = document.getElementById('geminiKey').value;
-            const newPrompt = await suggestPromptFromKeyword(keyword, geminiKey);
-            
-            if (newPrompt) {
-                // Add the new prompt to the global prompts array
-                prompts.push(newPrompt);
-                logMessage(`**নতুন টেমপ্লেট যোগ করা হলো (${prompts.length} নং):** \n"${newPrompt}"\n\nবর্তমান মোট টেমপ্লেট সংখ্যা: ${prompts.length}`, 'info');
-                keywordInput.value = ''; // Clear input
-            }
-        }
-
-        // Function to post the message to Telegram via Bot API
-        async function postToTelegram(botToken, chatId, message) {
-            logMessage("টেলিগ্রামে পোস্ট পাঠানোর চেষ্টা করা হচ্ছে...");
-            
-            const TELEGRAM_URL = `https://api.telegram.org/bot${botToken}/sendMessage`;
-            
-            // *** FIX: Escape special characters before sending to Telegram ***
-            const escapedMessage = escapeMarkdownV2(message);
-
-            try {
-                const response = await fetch(TELEGRAM_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        chat_id: chatId, 
-                        text: escapedMessage, // Use the escaped message
-                        parse_mode: 'MarkdownV2' 
-                    })
-                });
-                const data = await response.json();
-                if (data.ok) {
-                    logMessage("টেলিগ্রামে পোস্ট সফলভাবে পাঠানো হয়েছে!", 'success');
-                } else {
-                    // Telegram API error details will now be logged more clearly
-                    throw new Error(data.description || 'অজানা টেলিগ্রাম ত্রুটি');
-                }
-            } catch (error) {
-                // Logging the specific error reported by Telegram API
-                logMessage(`টেলিগ্রামে পোস্ট পাঠাতে ত্রুটি: ${error.message}`, 'error');
-            }
-        }
-
-        // Main function to execute generation and posting
-        async function generateAndPost() {
-            const geminiKey = document.getElementById('geminiKey').value;
-            const botToken = document.getElementById('botToken').value;
-            const chatId = document.getElementById('chatId').value;
-
-            if (!geminiKey || !botToken || !chatId) {
-                logMessage("ত্রুটি: API কী, বট টোকেন অথবা চ্যাট আইডি খালি রাখা যাবে না।", 'error');
-                stopPosting();
-                return;
-            }
-
-            const message = await generateCreativeText(geminiKey);
-            
-            if (message) {
-                await postToTelegram(botToken, chatId, message);
-                logMessage(`পরবর্তী পোস্টিং হবে ${POST_INTERVAL_MS / 1000} সেকেন্ড পর।`);
-            } else {
-                logMessage("পোস্ট তৈরি করা যায়নি। পোস্টিং বাতিল করা হলো।", 'error');
-            }
-        }
-
-        // Function to start the automatic posting loop
-        function startPosting() {
-            if (intervalId) return;
-            statusDiv.innerHTML = '';
-            logMessage("স্বয়ংক্রিয় পোস্টিং শুরু হচ্ছে...");
-            
-            // Run once immediately
-            generateAndPost(); 
-            
-            // Set the interval for continuous posting
-            intervalId = setInterval(generateAndPost, POST_INTERVAL_MS); 
-            
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-        }
-
-        // Function to stop the automatic posting loop
-        function stopPosting() {
-            if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = null;
-                logMessage("স্বয়ংক্রিয় পোস্টিং বন্ধ করা হয়েছে।", 'info');
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
             }
         }
     </script>
+</head>
+<body onload="lucide.createIcons()">
+
+<div id="mobile-container" class="no-scrollbar">
+    
+    <!-- #################### Menu Page #################### -->
+    <div id="menu-page" class="page">
+        <!-- Menu Header -->
+        <header class="p-4 flex justify-between items-center text-white bg-black/50 sticky top-0 z-10">
+            <div class="flex items-center space-x-4">
+                <button onclick="showToast('Back button clicked (Placeholder)', 'white')">
+                    <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                </button>
+                <h1 class="text-xl font-semibold">Menu</h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="showToast('Balance dropdown clicked', 'app-accent')">
+                    <i data-lucide="chevron-down" class="w-5 h-5"></i>
+                </button>
+                <button onclick="showToast('More options clicked', 'app-accent')">
+                    <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Menu Content -->
+        <main class="p-4 flex-grow">
+            
+            <!-- Deposit Bonus Card -->
+            <div class="bg-[#332A42] p-4 rounded-xl flex justify-between items-center mb-6 shadow-xl cursor-pointer" onclick="navigate('bonus-page')">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 rounded-lg bg-purple-600/70">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#CDE051" stroke="#CDE051" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                            <path d="M20 12V7.5L16 3H8L4 7.5V12M20 12H4M20 12L22 17L12 21L2 17L4 12"/>
+                            <line x1="12" y1="3" x2="12" y2="12"/>
+                            <path d="M12 21L12 12"/>
+                            <path d="M10 7L14 7"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-white font-bold text-lg">Deposit Bonus</h2>
+                        <p class="text-white/60 text-sm">Boost your deposit bonus</p>
+                    </div>
+                </div>
+                <button class="bg-app-accent p-2 rounded-full">
+                    <i data-lucide="arrow-right" class="w-5 h-5 text-primary-dark"></i>
+                </button>
+            </div>
+
+            <!-- Game Catalog Menu Items -->
+            <div class="space-y-0 text-white/90">
+                <div class="menu-item" onclick="navigate('explore-page')">
+                    <i data-lucide="flame" class="list-icon w-6 h-6 mr-4 text-orange-400"></i>
+                    <span class="font-medium">Hot</span>
+                </div>
+                <div class="menu-item" onclick="showToast('Showing recent games...', 'app-accent')">
+                    <i data-lucide="clock" class="list-icon w-6 h-6 mr-4"></i>
+                    <span class="font-medium">Recents</span>
+                </div>
+                <div class="menu-item" onclick="showToast('Showing favorite games...', 'app-accent')">
+                    <i data-lucide="heart" class="list-icon w-6 h-6 mr-4 text-red-500"></i>
+                    <span class="font-medium">Favorites</span>
+                </div>
+                <hr class="border-white/10 my-1">
+                <div class="menu-item justify-between pr-4" onclick="showToast('Casino dropdown clicked. (Static content)', 'app-accent')">
+                    <div class="flex items-center">
+                        <i data-lucide="gem" class="list-icon w-6 h-6 mr-4 text-red-500"></i>
+                        <span class="font-medium">Casino</span>
+                    </div>
+                    <i data-lucide="chevron-up" class="w-4 h-4 text-white/70"></i>
+                </div>
+                <div class="pl-12 space-y-0 text-white/80 border-l border-white/10 ml-4">
+                    <div class="menu-item !py-3" onclick="navigate('explore-page')"><i data-lucide="tag" class="list-icon w-5 h-5 mr-3"></i><span class="text-sm">New Releases</span></div>
+                    <div class="menu-item !py-3" onclick="navigate('explore-page')"><i data-lucide="slot-machine" class="list-icon w-5 h-5 mr-3"></i><span class="text-sm">Slots</span></div>
+                    <div class="menu-item !py-3" onclick="navigate('explore-page')"><i data-lucide="rocket" class="list-icon w-5 h-5 mr-3"></i><span class="text-sm">Crash Games</span></div>
+                    <div class="menu-item !py-3" onclick="navigate('explore-page')"><i data-lucide="monitor" class="list-icon w-5 h-5 mr-3"></i><span class="text-sm">Live Dealer</span></div>
+                    <div class="menu-item !py-3" onclick="navigate('explore-page')"><i data-lucide="coffee" class="list-icon w-5 h-5 mr-3"></i><span class="text-sm">Table Games</span></div>
+                    <div class="menu-item !py-3" onclick="navigate('explore-page')"><i data-lucide="controller" class="list-icon w-5 h-5 mr-3"></i><span class="text-sm">Game Shows</span></div>
+                </div>
+                <hr class="border-white/10 my-1">
+                <div class="menu-item" onclick="showToast('Viewing Providers list...', 'app-accent')">
+                    <i data-lucide="star" class="list-icon w-6 h-6 mr-4 text-yellow-500"></i>
+                    <span class="font-medium">Providers</span>
+                </div>
+                <div class="menu-item" onclick="navigate('bonus-page')">
+                    <i data-lucide="coins" class="list-icon w-6 h-6 mr-4"></i>
+                    <span class="font-medium">Bonus</span>
+                </div>
+                <hr class="border-white/10 my-1">
+                <div class="menu-item justify-between bg-[#332A42] rounded-xl px-4 mt-6 !py-4 shadow-inner" onclick="showToast('Opening Live Support...', 'app-accent')">
+                    <div class="flex items-center">
+                        <i data-lucide="message-square" class="list-icon w-6 h-6 mr-4 text-app-accent"></i>
+                        <span class="font-medium text-white">Live Support</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-app-accent font-bold">24/7</span>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-app-accent"></i>
+                    </div>
+                </div>
+                <div class="menu-item mt-6" onclick="navigate('profile-page')">
+                    <i data-lucide="settings" class="list-icon w-6 h-6 mr-4"></i>
+                    <span class="font-medium">Settings</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- #################### Bonus Page #################### -->
+    <div id="bonus-page" class="page">
+        <header class="p-4 flex justify-between items-center text-white bg-black/50 sticky top-0 z-10">
+            <button onclick="navigate('menu-page')" class="mr-auto"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">Bonus & Rewards</h1>
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center text-lg font-bold">
+                    <span class="mr-1">$</span><span id="header-balance-bonus">0.00</span>
+                </div>
+                <button onclick="showToast('Notifications clicked', 'app-accent')"><i data-lucide="bell" class="w-6 h-6"></i></button>
+            </div>
+        </header>
+        
+        <main id="bonus-page-content" class="text-white">
+            <!-- Banner Section -->
+            <div class="relative h-48 overflow-hidden bg-card-bg-dark">
+                <img src="https://placehold.co/420x200/2B2136/CDE051?text=Exclusive+VIP+Rewards+Banner" alt="VIP Banner" class="w-full h-full object-cover opacity-60"/>
+                <div class="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-primary-dark/80 to-transparent">
+                    <h2 class="text-2xl font-bold">EXCLUSIVE VIP REWARDS</h2>
+                    <button class="bg-app-accent text-primary-dark font-bold px-4 py-2 rounded-lg mt-2 w-max text-sm flex items-center">
+                        MORE INFO <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Wins -->
+            <div class="p-4">
+                <h2 class="text-lg font-bold mb-3 flex items-center justify-between">
+                    Recent Big Wins
+                    <span class="text-xs text-app-accent border border-app-accent px-2 py-0.5 rounded-full cursor-pointer hover:bg-app-accent hover:text-primary-dark transition-colors" onclick="showToast('Showing all wins...', 'app-accent')">All</span>
+                </h2>
+                <div class="grid grid-cols-4 gap-3">
+                    <div class="relative text-xs"><img src="https://placehold.co/100x120/555/fff?text=Slot+A" class="w-full rounded-lg object-cover"/><p class="absolute bottom-0 left-0 right-0 bg-black/70 p-1 text-center rounded-b-lg">$129.6</p></div>
+                    <div class="relative text-xs"><img src="https://placehold.co/100x120/555/fff?text=Slot+B" class="w-full rounded-lg object-cover"/><p class="absolute bottom-0 left-0 right-0 bg-black/70 p-1 text-center rounded-b-lg">$78.4</p></div>
+                    <div class="relative text-xs"><img src="https://placehold.co/100x120/555/fff?text=Slot+C" class="w-full rounded-lg object-cover"/><p class="absolute bottom-0 left-0 right-0 bg-black/70 p-1 text-center rounded-b-lg">$12.12</p></div>
+                    <div class="relative text-xs"><img src="https://placehold.co/100x120/555/fff?text=Slot+D" class="w-full rounded-lg object-cover"/><p class="absolute bottom-0 left-0 right-0 bg-black/70 p-1 text-center rounded-b-lg">$10.64K</p></div>
+                </div>
+            </div>
+
+            <!-- Hot Games Slider -->
+            <div class="p-4 pt-0">
+                <h2 class="text-lg font-bold mb-3 flex items-center"><i data-lucide="flame" class="w-5 h-5 text-red-500 mr-2"></i> Hot Games</h2>
+                <div class="flex space-x-3 overflow-x-auto no-scrollbar">
+                    <div class="game-card flex-shrink-0 w-28 bg-card-bg-dark" onclick="showToast('Playing Sweet Bonanza...', 'app-accent')"><i data-lucide="heart" class="heart-icon w-4 h-4"></i><div class="game-card-image" style="background-image: url('https://placehold.co/120x150/FF69B4/FFFFFF?text=Sweet+Bonanza');"></div><div class="p-2 pt-1 text-center"><p class="text-xs font-semibold truncate">Sweet Bonanza</p></div></div>
+                    <div class="game-card flex-shrink-0 w-28 bg-card-bg-dark" onclick="showToast('Playing Fortune Gems 5...', 'app-accent')"><i data-lucide="heart" class="heart-icon w-4 h-4 fill-red-500 text-red-500"></i><div class="game-card-image" style="background-image: url('https://placehold.co/120x150/FFB800/2B2136?text=Fortune+5');"></div><div class="p-2 pt-1 text-center"><p class="text-xs font-semibold truncate">Fortune Gems 5</p></div></div>
+                    <div class="game-card flex-shrink-0 w-28 bg-card-bg-dark" onclick="showToast('Playing Fishing...', 'app-accent')"><i data-lucide="heart" class="heart-icon w-4 h-4"></i><div class="game-card-image" style="background-image: url('https://placehold.co/120x150/1E90FF/FFFFFF?text=Fish+Hunter');"></div><div class="p-2 pt-1 text-center"><p class="text-xs font-semibold truncate">Fish Hunter</p></div></div>
+                    <div class="game-card flex-shrink-0 w-28 bg-card-bg-dark" onclick="navigate('explore-page')"><i data-lucide="heart" class="heart-icon w-4 h-4"></i><div class="game-card-image" style="background-image: url('https://placehold.co/120x150/3A3A3A/CDE051?text=Aviator');"></div><div class="p-2 pt-1 text-center"><p class="text-xs font-semibold truncate">Aviator</p></div></div>
+                </div>
+            </div>
+            
+            <div class="p-4 pt-0 text-center">
+                <button onclick="showToast('Claim your free spin!', 'app-accent')" class="w-full bg-app-accent text-primary-dark py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-app-accent/50 transition-shadow">
+                    CLAIM DAILY BONUS
+                </button>
+            </div>
+        </main>
+        <div id="bonus-page-placeholder" class="hidden flex-col items-center justify-center text-center p-8 h-full">
+            <i data-lucide="info" class="w-16 h-16 text-app-accent mb-4"></i>
+            <h2 class="text-xl font-bold text-white">No Offers Available</h2>
+            <p class="text-white/70 mt-2">Please deposit USDT to view offers and bonuses.</p>
+            <button onclick="navigate('deposit-page')" class="mt-6 bg-app-accent text-primary-dark font-bold px-6 py-2 rounded-lg">Deposit Now</button>
+        </div>
+    </div>
+
+    <!-- #################### Explore Page – Aviator Game #################### -->
+    <div id="explore-page" class="page">
+        <header class="p-4 flex justify-between items-center text-white bg-black/50 sticky top-0 z-10">
+            <button onclick="navigate('menu-page')" class="mr-auto"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">🛩️ Aviator</h1>
+            <div class="flex items-center space-x-3">
+                <button onclick="showToast('Sort menu clicked', 'app-accent')"><i data-lucide="chevron-down" class="w-5 h-5"></i></button>
+                <button onclick="showToast('More options clicked', 'app-accent')"><i data-lucide="more-vertical" class="w-5 h-5"></i></button>
+            </div>
+        </header>
+
+        <main class="p-4 sm:p-8 text-white">
+            <div id="balance" class="text-xl font-semibold mb-4 text-green-400">Balance: $0.00 USDT</div>
+            
+            <div class="w-full max-w-2xl flex flex-col gap-3 mb-4">
+                <div id="global-history-container" class="bg-gray-800 p-3 rounded-lg shadow-xl">
+                    <strong class="text-sm text-gray-400 block mb-1">Global History (High Multipliers):</strong>
+                    <div id="hist" class="flex flex-nowrap overflow-x-auto py-1 whitespace-nowrap"></div>
+                </div>
+                <div id="my-history-container" class="bg-gray-800 p-3 rounded-lg shadow-xl">
+                    <strong class="text-sm text-gray-400 block mb-1">My History:</strong>
+                    <div id="user-hist-list" class="flex flex-nowrap overflow-x-auto py-1 whitespace-nowrap"></div>
+                </div>
+            </div>
+
+            <div id="game-area" data-state="WAITING">
+                <div id="multiplier" class="text-center">1.00x</div>
+                <div id="plane">✈️</div>
+                <div id="crash-overlay">CRASHED!</div>
+                <div class="countdown-bar"><div id="countdown-fill" class="countdown-fill"></div></div>
+            </div>
+
+            <div id="panel" class="w-full max-w-sm bg-gray-800 p-4 rounded-lg shadow-2xl mb-6 flex flex-col gap-4 mx-auto">
+                <div id="status" class="text-lg font-medium text-center text-yellow-400">Game is starting...</div>
+                <div class="flex gap-4">
+                    <input type="number" id="bet" placeholder="Bet Amount" min="0.1" step="0.1" value="1" class="w-1/2 p-3 text-lg bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <button id="betBtn" class="w-1/2 p-3 text-lg font-bold rounded-lg transition-colors bg-gray-700 hover:bg-gray-600 disabled:bg-gray-600 disabled:cursor-not-allowed">Place Bet</button>
+                </div>
+                <button id="cashBtn" disabled class="p-3 text-xl font-bold rounded-lg transition-colors bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 disabled:text-gray-400">Cash Out</button>
+            </div>
+
+            <div id="live-bets" class="w-full max-w-2xl bg-gray-800 p-4 rounded-lg shadow-2xl mx-auto">
+                <h3 class="text-xl font-semibold mb-3 text-left">Live Bets</h3>
+                <table class="min-w-full text-sm text-left text-gray-400">
+                    <thead class="text-xs text-gray-200 uppercase bg-gray-700 rounded-t-lg">
+                        <tr>
+                            <th scope="col" class="px-3 py-2 rounded-tl-lg">User</th>
+                            <th scope="col" class="px-3 py-2 text-right">Bet (USDT)</th>
+                            <th scope="col" class="px-3 py-2 text-right">Status</th> 
+                            <th scope="col" class="px-3 py-2 rounded-tr-lg text-right">Payout</th>
+                        </tr>
+                    </thead>
+                    <tbody id="demo-bets-list"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- #################### Referral Page #################### -->
+    <div id="referral-page" class="page">
+        <header class="p-4 flex justify-between items-center text-white bg-black/50 sticky top-0 z-10">
+            <button onclick="navigate('menu-page')" class="mr-auto"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">Referral</h1>
+            <div class="flex items-center space-x-3">
+                <button onclick="showToast('Referral filter clicked', 'app-accent')"><i data-lucide="chevron-down" class="w-5 h-5"></i></button>
+                <button onclick="showToast('Referral options clicked', 'app-accent')"><i data-lucide="more-vertical" class="w-5 h-5"></i></button>
+            </div>
+        </header>
+
+        <main class="p-4 text-white">
+            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg border border-white/10">
+                <h2 class="text-sm text-white/70 mb-2">Lifetime Referral Rewards</h2>
+                <div class="flex justify-between items-center">
+                    <p class="text-3xl font-bold text-app-accent">$0.00 <span class="text-white/70 text-sm">USDT</span></p>
+                    <button class="text-white/70 flex items-center text-sm hover:text-white" onclick="showToast('Viewing network details...', 'app-accent')">
+                        Network: 0 <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mt-4 space-y-3">
+                <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg flex justify-between items-center">
+                    <div>
+                        <p class="text-sm text-white/70">Available Commission Rewards</p>
+                        <p class="text-xl font-bold text-app-accent">$0.00</p>
+                        <p class="text-xs text-white/50">Total Received: $0</p>
+                    </div>
+                    <button class="bg-app-accent text-primary-dark px-4 py-2 rounded-lg font-bold text-sm" onclick="showToast('Claiming commission...', 'app-accent')">Claim</button>
+                </div>
+                <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg flex justify-between items-center">
+                    <div>
+                        <p class="text-sm text-white/70">Available Referral Rewards</p>
+                        <p class="text-xl font-bold text-app-accent">$0.00</p>
+                        <p class="text-xs text-white/50">Locked Rewards: $0</p>
+                    </div>
+                    <button class="bg-app-accent text-primary-dark px-4 py-2 rounded-lg font-bold text-sm" onclick="showToast('Claiming referral rewards...', 'app-accent')">Claim</button>
+                </div>
+            </div>
+
+            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg mt-4 border border-white/10">
+                <h3 class="text-white font-semibold mb-2">Referral Link</h3>
+                <div class="flex items-center bg-deep-purple/50 p-3 rounded-lg border border-white/10">
+                    <input type="text" id="referral-link" value="https://t.me/@NebulaTraderS_Bot?start=ref{user_id" readonly class="flex-grow bg-transparent text-sm text-app-accent focus:outline-none" />
+                    <button onclick="copyToClipboard('referral-link')" class="bg-app-accent text-primary-dark px-3 py-1 rounded-lg font-bold text-xs flex items-center ml-2">
+                        <i data-lucide="copy" class="w-4 h-4 mr-1"></i> Copy
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <h3 class="text-white font-bold mb-3 flex items-center">
+                    <span class="w-3 h-3 bg-app-accent rounded-full mr-2"></span>
+                    Global Commission Rewards
+                </h3>
+                <div class="bg-card-bg-dark rounded-xl p-4">
+                    <div class="flex justify-between text-white/70 text-xs font-semibold mb-3 border-b border-white/10 pb-2">
+                        <span>Username</span>
+                        <span>Available Rewards</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between"><span>r3p2vdx2z6</span> <span class="text-app-accent">+ $0.021</span></div>
+                        <div class="flex justify-between"><span>6awz6756mt</span> <span class="text-app-accent">+ $0.016</span></div>
+                        <div class="flex justify-between"><span>rcn5qms5vt</span> <span class="text-app-accent">+ $0.0037</span></div>
+                        <div class="flex justify-between"><span>cm6wafp3ty</span> <span class="text-app-accent">+ $0.016</span></div>
+                        <div class="flex justify-between"><span>76s5syrquv</span> <span class="text-app-accent">+ $0.015</span></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- #################### Profile Page #################### -->
+    <div id="profile-page" class="page">
+        <header class="p-4 flex justify-between items-center text-white bg-black/50 sticky top-0 z-10">
+            <button onclick="navigate('menu-page')" class="mr-auto"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">Profile</h1>
+            <div class="flex items-center space-x-3">
+                <button onclick="showToast('Profile filter clicked', 'app-accent')"><i data-lucide="chevron-down" class="w-5 h-5"></i></button>
+                <button onclick="showToast('Profile options clicked', 'app-accent')"><i data-lucide="more-vertical" class="w-5 h-5"></i></button>
+            </div>
+        </header>
+
+        <main class="text-white">
+            <div class="p-4 relative bg-card-bg-dark border-b-2 border-app-accent/30 shadow-2xl overflow-hidden">
+                <img src="https://placehold.co/420x200/2B2136/CDE051?text=User+Art" alt="Background art" class="absolute inset-0 w-full h-full object-cover opacity-20"/>
+                
+                <div class="relative z-10">
+                    <div class="flex items-center mb-6">
+                        <div id="profile-initials" class="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-lg font-bold mr-3 border-2 border-app-accent/50 shadow-md">
+                            TG
+                        </div>
+                        <div>
+                            <div class="flex items-center text-xl font-bold">
+                                <span id="profile-username">telegram_user</span>
+                            </div>
+                            <div class="text-xs text-white/70 flex items-center mt-0.5">
+                                <span class="mr-1">ID: <span id="profile-uid">000000</span></span>
+                                <i data-lucide="copy" class="w-3 h-3 cursor-pointer" onclick="copyToClipboard(document.getElementById('profile-uid').innerText)"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-deep-purple/50 p-3 rounded-xl flex items-center justify-between border border-white/10 shadow-inner">
+                        <div class="flex items-center space-x-3">
+                            <span class="vip-badge">VIP 1</span>
+                            <div class="text-xs">
+                                <p class="text-white font-semibold">10 XP to VIP 2</p>
+                                <div class="w-32 h-1 bg-white/30 rounded-full mt-1">
+                                    <div class="bg-app-accent h-1 rounded-full" style="width: 25%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="text-xs text-app-accent font-bold flex items-center" onclick="showToast('Viewing VIP details...', 'app-accent')">
+                            View <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-primary-dark">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-white/60 font-medium flex items-center"><i data-lucide="wallet" class="w-5 h-5 mr-2 text-app-accent"></i>Total Balance</h2>
+                    <div class="flex items-center text-xl font-bold text-app-accent">
+                        <i data-lucide="dollar-sign" class="w-5 h-5 mr-1"></i>
+                        <span id="profile-total-balance">0.00</span>
+                        <span class="text-sm ml-1 text-white/80">USDT</span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-3 text-center">
+                    <div class="flex flex-col items-center p-2 rounded-lg bg-card-bg-dark/80 hover:bg-card-bg-dark transition-colors cursor-pointer border border-white/10" onclick="navigate('deposit-page')">
+                        <i data-lucide="package" class="w-6 h-6 text-app-accent mb-1"></i><span class="text-xs text-white/80">Deposit</span>
+                    </div>
+                    <div class="flex flex-col items-center p-2 rounded-lg bg-card-bg-dark/80 hover:bg-card-bg-dark transition-colors cursor-pointer border border-white/10" onclick="navigate('withdraw-page')">
+                        <i data-lucide="banknote" class="w-6 h-6 text-app-accent mb-1"></i><span class="text-xs text-white/80">Withdraw</span>
+                    </div>
+                    <div class="flex flex-col items-center p-2 rounded-lg bg-card-bg-dark/80 hover:bg-card-bg-dark transition-colors cursor-pointer border border-white/10" onclick="showToast('Transactions clicked', 'app-accent')">
+                        <i data-lucide="clipboard-list" class="w-6 h-6 text-app-accent mb-1"></i><span class="text-xs text-white/80">Transactions</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-card-bg-dark mt-2 rounded-t-xl">
+                <h2 class="text-white text-lg font-bold mb-3">Stats</h2>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="p-3 bg-deep-purple rounded-lg border border-white/10"><p class="text-xl font-bold text-app-accent">0</p><p class="text-xs text-white/70">Total Wins</p></div>
+                    <div class="p-3 bg-deep-purple rounded-lg border border-white/10"><p class="text-xl font-bold text-app-accent">0</p><p class="text-xs text-white/70">Total Bets</p></div>
+                    <div class="p-3 bg-deep-purple rounded-lg border border-white/10"><p class="text-xl font-bold text-app-accent flex justify-center items-center"><i data-lucide="dollar-sign" class="w-4 h-4 mr-0.5"></i><span>0</span></p><p class="text-xs text-white/70">Total Wagered</p></div>
+                </div>
+            </div>
+
+            <div class="p-4 space-y-2">
+                <h2 class="text-white text-lg font-bold mb-3">Settings & Support</h2>
+                <div class="bg-card-bg-dark rounded-xl space-y-1 p-2 border border-white/10">
+                    <div class="flex justify-between items-center p-2 hover:bg-deep-purple/50 rounded-lg cursor-pointer" onclick="showToast('General settings clicked', 'app-accent')"><span class="text-white/90">General</span><i data-lucide="chevron-right" class="w-5 h-5 text-white/50"></i></div>
+                    <div class="flex justify-between items-center p-2 hover:bg-deep-purple/50 rounded-lg cursor-pointer" onclick="showToast('Security settings clicked', 'app-accent')"><span class="text-white/90">Security</span><i data-lucide="chevron-right" class="w-5 h-5 text-white/50"></i></div>
+                    <div class="flex justify-between items-center p-2 hover:bg-deep-purple/50 rounded-lg cursor-pointer" onclick="showToast('Legal documents clicked', 'app-accent')"><span class="text-white/90">Legal</span><i data-lucide="chevron-right" class="w-5 h-5 text-white/50"></i></div>
+                </div>
+                <button class="w-full bg-red-600/70 py-3 rounded-xl text-white font-bold mt-4 hover:bg-red-700/80 transition-colors shadow-lg" onclick="showToast('Logged out successfully.', 'red-500')">Log Out</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- #################### Deposit Page #################### -->
+    <div id="deposit-page" class="page">
+        <header class="p-4 flex justify-between items-center text-white bg-black/50 sticky top-0 z-10">
+            <button onclick="navigate('profile-page')" class="mr-auto"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">Deposit</h1>
+        </header>
+        <main class="p-4 text-white space-y-6">
+            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg">
+                <label for="deposit-amount" class="block text-sm font-medium text-white/70 mb-2">Amount</label>
+                <div class="relative">
+                    <input type="number" id="deposit-amount" placeholder="Enter amount" class="w-full p-3 bg-deep-purple text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-accent">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50">USDT</span>
+                </div>
+            </div>
+
+            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg">
+                <h3 class="text-white font-semibold mb-2">Deposit Address (USDT - ERC20/BEP20)</h3>
+                <div class="flex items-center bg-deep-purple p-3 rounded-lg border border-white/20">
+                    <input type="text" id="deposit-address" value="0x40ecab7fcd672541aee574990d0ee03adbcbc4e2" readonly class="flex-grow bg-transparent text-sm text-app-accent focus:outline-none" />
+                    <button onclick="copyToClipboard('deposit-address')" class="bg-app-accent text-primary-dark px-3 py-1 rounded-lg font-bold text-xs flex items-center ml-2">
+                        <i data-lucide="copy" class="w-4 h-4 mr-1"></i> Copy
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg text-sm text-white/80 space-y-2">
+                <h3 class="text-white font-semibold mb-2">Instructions</h3>
+                <p>1. Copy the address above.</p>
+                <p>2. Send the desired amount of USDT to this address. Please use the ERC20 or BEP20 network.</p>
+                <p>3. After sending, copy the transaction hash (TxID) from your wallet.</p>
+                <p>4. Paste the transaction hash below as proof of deposit.</p>
+            </div>
+            
+            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg">
+                <label for="transaction-proof" class="block text-sm font-medium text-white/70 mb-2">Transaction Hash (TxID)</label>
+                <input type="text" id="transaction-proof" placeholder="Paste your transaction hash here" class="w-full p-3 bg-deep-purple text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-accent">
+            </div>
+
+            <button onclick="showToast('Deposit request submitted for review.', 'app-accent')" class="w-full bg-app-accent text-primary-dark py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-app-accent/50 transition-shadow">
+                Submit Deposit
+            </button>
+        </main>
+    </div>
+
+    <!-- #################### Withdraw Page #################### -->
+    <div id="withdraw-page" class="page">
+        <header class="p-4 flex justify-between items-center text-white bg-black/50 sticky top-0 z-10">
+            <button onclick="navigate('profile-page')" class="mr-auto"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">Withdraw</h1>
+        </header>
+        <main class="p-4 text-white space-y-6">
+            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg">
+                <label for="withdraw-amount" class="block text-sm font-medium text-white/70 mb-2">Amount (No Limit)</label>
+                <div class="relative">
+                    <input type="number" id="withdraw-amount" placeholder="Enter amount" class="w-full p-3 bg-deep-purple text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-accent">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50">USDT</span>
+                </div>
+            </div>
+
+            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg">
+                <label for="withdraw-address" class="block text-sm font-medium text-white/70 mb-2">Your USDT Address</label>
+                <input type="text" id="withdraw-address" placeholder="Paste your withdrawal address here" class="w-full p-3 bg-deep-purple text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-accent">
+            </div>
+
+            <button onclick="showToast('Withdrawal request submitted.', 'app-accent')" class="w-full bg-app-accent text-primary-dark py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-app-accent/50 transition-shadow">
+                Submit Withdrawal
+            </button>
+        </main>
+    </div>
+
+    <!-- #################### Bottom Navigation #################### -->
+    <footer class="w-full bg-[#2B2136] border-t border-white/10 text-white/70 fixed bottom-0 max-w-[420px]">
+        <div class="flex justify-around items-center h-16">
+            <button data-page="menu-page" class="nav-button flex flex-col items-center text-xs space-y-1 hover:text-white transition-colors"><i data-lucide="menu" class="w-6 h-6"></i><span>Menu</span></button>
+            <button data-page="explore-page" class="nav-button flex flex-col items-center text-xs space-y-1 hover:text-white transition-colors"><i data-lucide="compass" class="w-6 h-6"></i><span>Explore</span></button>
+            <button data-page="bonus-page" class="nav-button flex flex-col items-center text-xs space-y-1 hover:text-white transition-colors"><i data-lucide="gift" class="w-6 h-6"></i><span>Bonus</span></button>
+            <button data-page="referral-page" class="nav-button flex flex-col items-center text-xs space-y-1 hover:text-white transition-colors"><i data-lucide="users" class="w-6 h-6"></i><span>Referral</span></button>
+            <button data-page="profile-page" class="nav-button flex flex-col items-center text-xs space-y-1 hover:text-white transition-colors"><i data-lucide="user" class="w-6 h-6"></i><span>Profile</span></button>
+        </div>
+    </footer>
+</div>
+
+<!-- Support Button -->
+<button class="fixed right-4 bottom-24 p-3 rounded-full shadow-lg z-20" style="background-color: var(--accent-color);" onclick="showToast('Opening Support Chat...', 'app-accent')">
+    <i data-lucide="headphones" class="w-6 h-6 text-primary-dark"></i>
+</button>
+
+<script>
+    // --- Global Logic & Navigation ---
+    function navigate(targetPageId) {
+        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+        const targetPage = document.getElementById(targetPageId);
+        if (targetPage) {
+            targetPage.classList.add('active');
+            updateNavActiveState(targetPageId);
+            document.getElementById('mobile-container').scrollTop = 0;
+        }
+    }
+
+    function updateNavActiveState(activePageId) {
+        document.querySelectorAll('.nav-button').forEach(button => {
+            const pageId = button.getAttribute('data-page');
+            const iconSpan = button.querySelector('span');
+            button.classList.remove('text-app-accent');
+            button.classList.add('text-white/70');
+            if(iconSpan) iconSpan.classList.remove('font-bold');
+            if (pageId === activePageId) {
+                button.classList.add('text-app-accent');
+                button.classList.remove('text-white/70');
+                if(iconSpan) iconSpan.classList.add('font-bold');
+            }
+        });
+    }
+
+    function copyToClipboard(elementIdOrText) {
+        let textToCopy;
+        const inputElement = document.getElementById(elementIdOrText);
+        textToCopy = inputElement ? inputElement.value : elementIdOrText;
+        
+        if (textToCopy) {
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => showToast(`Copied: ${textToCopy.substring(0, 15)}...`, "app-accent"))
+                .catch(err => showToast("Failed to copy.", "red-500"));
+        }
+    }
+
+    function showToast(message, color) {
+        const toast = document.createElement('div');
+        toast.textContent = message;
+        toast.className = `fixed bottom-36 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg text-sm font-semibold shadow-xl transition-opacity duration-300 z-50`;
+        toast.style.backgroundColor = color === "app-accent" ? 'var(--accent-color)' : color;
+        toast.style.color = color === "app-accent" ? 'var(--dark-bg)' : 'white';
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
+    }
+
+    // --- Firebase and Telegram Integration ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyCho5RtEIoXnNlNNrpBg65BmTpJY23Se7Y",
+        authDomain: "maillbeex.firebaseapp.com",
+        databaseURL: "https://maillbeex-default-rtdb.firebaseio.com",
+        projectId: "maillbeex",
+        storageBucket: "maillbeex.appspot.com",
+        messagingSenderId: "5938669413",
+        appId: "1:5938669413:web:34b6bbbbb0e81628a2a38c",
+        measurementId: "G-F6YNLNQSK7"
+    };
+
+    let db;
+    let tgUser;
+    let userDocRef;
+    let currentUserBalance = 0;
+
+    function initializeApp() {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+
+        try {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tgUser = tg.initDataUnsafe?.user;
+
+            if (tgUser && tgUser.id) {
+                loadUserData(tgUser);
+            } else {
+                // Fallback for testing outside Telegram
+                console.warn("Telegram user data not found. Using mock user.");
+                tgUser = { id: '12345678', username: 'test_user', first_name: 'Test', last_name: 'User' };
+                loadUserData(tgUser);
+            }
+        } catch (error) {
+            console.error("Telegram Web App script not loaded or failed.", error);
+            // Fallback for testing outside Telegram
+             tgUser = { id: '12345678', username: 'test_user', first_name: 'Test', last_name: 'User' };
+             loadUserData(tgUser);
+        }
+    }
+
+    function loadUserData(user) {
+        updateProfileUI(user);
+        userDocRef = db.collection('users').doc(user.id.toString());
+
+        userDocRef.onSnapshot(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                currentUserBalance = data.balance || 0;
+            } else {
+                // Create new user document
+                currentUserBalance = 0;
+                userDocRef.set({
+                    username: user.username,
+                    first_name: user.first_name,
+                    balance: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            updateAllBalances(currentUserBalance);
+            checkBonusPageCondition(currentUserBalance);
+        }, err => {
+            console.error("Error fetching user data: ", err);
+        });
+    }
+
+    function updateProfileUI(user) {
+        document.getElementById('profile-username').innerText = user.username || `${user.first_name} ${user.last_name}`;
+        document.getElementById('profile-uid').innerText = user.id;
+        const initials = ((user.first_name?.[0] || '') + (user.last_name?.[0] || '')).toUpperCase() || 'TG';
+        document.getElementById('profile-initials').innerText = initials;
+    }
+
+    function updateAllBalances(newBalance) {
+        const formattedBalance = newBalance.toFixed(2);
+        document.getElementById('header-balance-bonus').innerText = formattedBalance;
+        document.getElementById('profile-total-balance').innerText = formattedBalance;
+        // Update Aviator game balance
+        balance = newBalance;
+        if(balEl) balEl.textContent = `Balance: $${newBalance.toFixed(2)} USDT`;
+    }
+
+    function updateUserBalanceInDb(newBalance) {
+        if (userDocRef) {
+            userDocRef.update({ balance: newBalance })
+                .catch(err => console.error("Failed to update balance in DB: ", err));
+        }
+    }
+
+    function checkBonusPageCondition(balance) {
+        const content = document.getElementById('bonus-page-content');
+        const placeholder = document.getElementById('bonus-page-placeholder');
+        if (balance > 0) {
+            content.style.display = 'block';
+            placeholder.style.display = 'none';
+        } else {
+            content.style.display = 'none';
+            placeholder.style.display = 'flex';
+        }
+    }
+
+    // --- Aviator Game Script ---
+    let balance = 0; // Will be overwritten by Firebase
+    let bet = 0;
+    let mult = 1.00;
+    let crashPoint = 0;
+    let userBetActive = false;
+    let cashOutDone = false;
+    let gameState = 'WAITING';
+    let gameLoopInterval, bettingInterval;
+
+    const BETTING_TIME = 6000;
+    const globalHistory = [];
+    const userHistory = [];
+    const $ = id => document.getElementById(id);
+    const balEl = $('balance'), statEl = $('status'), multEl = $('multiplier');
+    const planeEl = $('plane'), crashOverlay = $('crash-overlay'), histEl = $('hist');
+    const betIn = $('bet'), betBtn = $('betBtn'), cashBtn = $('cashBtn');
+    const countdownFill = $('countdown-fill');
+    const demoBetsList = $('demo-bets-list');
+    const gameArea = $('game-area');
+
+    // Demo user functions remain for live bets display
+    let demoUsers = [];
+    function generateRandomName() { return 'u***' + Math.floor(Math.random() * 900 + 100); }
+    function generateNewBettingUser() { return { id: generateRandomName(), bet: (1 + Math.random() * 500).toFixed(2), status: 'Betting', cashOutPoint: (1.2 + Math.random() * 3.8).toFixed(2), win: 0 }; }
+    function handleDemoUsers(state) {
+        if (state === 'BETTING') {
+            demoUsers = Array.from({ length: 15 }, generateNewBettingUser);
+        } else if (state === 'FLYING' && mult > 1.0) {
+            demoUsers.forEach(user => {
+                if (user.status === 'Betting' && mult >= parseFloat(user.cashOutPoint) && Math.random() < 0.05) {
+                    user.status = 'Cashed Out';
+                    user.win = (user.bet * parseFloat(user.cashOutPoint)).toFixed(2);
+                }
+            });
+        }
+        renderDemoUsers();
+    }
+    function renderDemoUsers() {
+        demoBetsList.innerHTML = '';
+        demoUsers.sort((a,b) => b.bet - a.bet).forEach(user => {
+            const isWinner = user.status === 'Cashed Out';
+            let statusClass = isWinner ? 'status-win' : 'status-betting';
+            const row = document.createElement('tr');
+            row.className = `border-b border-gray-700 ${isWinner ? 'bg-green-900/40' : 'hover:bg-gray-700'}`;
+            row.innerHTML = `<td class="px-3 py-2 font-medium text-white">${user.id}</td><td class="px-3 py-2 text-right">${user.bet}</td><td class="px-3 py-2 text-right"><span class="${statusClass}">${user.status}</span></td><td class="px-3 py-2 text-right font-bold ${isWinner ? 'text-win-color' : 'text-gray-400'}">${isWinner ? user.win : '-'}</td>`;
+            demoBetsList.appendChild(row);
+        });
+    }
+
+    function updateBal() {
+        balEl.textContent = `Balance: $${balance.toFixed(2)} USDT`;
+        updateUserBalanceInDb(balance); // Persist change to Firebase
+    }
+
+    function updateGlobalHistory() { histEl.innerHTML = globalHistory.map(h => `<span class="h-item ${parseFloat(h) >= 5.00 ? 'win' : 'loss'}">${h}x</span>`).join(''); }
+    function updateUserHistory() { const userHistEl = $('user-hist-list'); userHistEl.innerHTML = userHistory.map(h => `<span class="h-item ${h.type === 'WIN' ? 'user-win' : 'user-loss'}">${h.type === 'WIN' ? `${h.mult}x WIN` : `${h.crash}x LOSS`}</span>`).join(''); }
+    function generateInitialGlobalHistory() { Array.from({length: 20}, () => (1.01 + Math.random() * 20).toFixed(2)).forEach(m => globalHistory.push(m)); updateGlobalHistory(); }
+
+    function calculateCrashPoint() { return parseFloat((1.01 + Math.pow(Math.random(), 4) * 25).toFixed(2)); }
+
+    function placeBet() {
+        if (gameState !== 'BETTING') return;
+        const v = parseFloat(betIn.value);
+        if (isNaN(v) || v <= 0) { statEl.textContent = 'Error: Bet must be positive.'; return; }
+        if (v > balance) { statEl.textContent = 'Error: Insufficient balance.'; return; }
+        bet = v;
+        balance -= bet;
+        userBetActive = true;
+        updateBal();
+        betBtn.disabled = true;
+        betBtn.classList.replace('bg-gray-700', 'bg-accent-green');
+        betBtn.textContent = `Bet ${bet.toFixed(2)} (Placed)`;
+        statEl.textContent = `Your bet is placed: $${bet.toFixed(2)}!`;
+        cashBtn.disabled = true;
+    }
+
+    function cashOut() {
+        if (gameState !== 'FLYING' || !userBetActive || cashOutDone) return;
+        const win = bet * mult;
+        balance += win;
+        cashOutDone = true;
+        userBetActive = false;
+        updateBal();
+        userHistory.unshift({ type: 'WIN', bet: bet.toFixed(2), mult: mult.toFixed(2), win: win.toFixed(2) });
+        if (userHistory.length > 20) userHistory.pop();
+        updateUserHistory(); 
+        cashBtn.disabled = true;
+        cashBtn.textContent = 'Cashed Out!';
+        statEl.textContent = `Success! Won $${win.toFixed(2)} @ ${mult.toFixed(2)}x`;
+        betBtn.classList.replace('bg-accent-green', 'bg-gray-700');
+    }
+
+    function resetRound() {
+        mult = 1.00; bet = 0; userBetActive = false; cashOutDone = false; gameState = 'WAITING';
+        planeEl.style.transform = 'translateX(0) translateY(0) rotate(-15deg)';
+        multEl.textContent = '1.00x';
+        betBtn.disabled = false; betBtn.textContent = 'Place Bet';
+        cashBtn.disabled = true; cashBtn.textContent = 'Cash Out';
+        crashOverlay.style.display = 'none';
+        gameArea.setAttribute('data-state', 'WAITING');
+        betBtn.classList.remove('bg-accent-green');
+    }
+
+    function startGame() {
+        resetRound();
+        gameState = 'BETTING'; gameArea.setAttribute('data-state', 'BETTING');
+        statEl.textContent = `Next round starts soon... Place your bet!`;
+        multEl.textContent = '6.0s';
+        let remainingTime = 6000;
+        countdownFill.style.transition = `width ${remainingTime}ms linear`;
+        countdownFill.style.width = '100%';
+        handleDemoUsers('BETTING');
+        bettingInterval = setInterval(() => {
+            remainingTime -= 100;
+            countdownFill.style.width = `${(remainingTime / BETTING_TIME) * 100}%`;
+            if (remainingTime <= 0) {
+                clearInterval(bettingInterval);
+                crashPoint = calculateCrashPoint();
+                startFlight();
+            } else {
+                multEl.textContent = (remainingTime / 1000).toFixed(1) + 's';
+            }
+        }, 100);
+    }
+
+    function startFlight() {
+        if (gameState === 'FLYING') return;
+        gameState = 'FLYING'; gameArea.setAttribute('data-state', 'FLYING');
+        statEl.textContent = 'Plane is flying... Cash out!';
+        countdownFill.style.transition = 'none';
+        countdownFill.style.width = '0%';
+        multEl.style.fontSize = '80px';
+        let startTime = Date.now();
+        gameLoopInterval = setInterval(() => {
+            const elapsedTime = (Date.now() - startTime) / 1000;
+            mult = parseFloat((1.00 + 0.06 * Math.pow(elapsedTime, 1.5)).toFixed(2));
+            if (mult >= crashPoint) { clearInterval(gameLoopInterval); crashGame(); return; }
+            multEl.textContent = mult.toFixed(2) + 'x';
+            const travelRatio = Math.min((mult - 1) / (crashPoint - 1), 1.0);
+            const translateX = travelRatio * 95; 
+            const translateY = -Math.sqrt(travelRatio) * 80; 
+            planeEl.style.transform = `translateX(${translateX}%) translateY(${translateY}%) rotate(-15deg)`;
+            if (userBetActive && !cashOutDone && mult >= 1.01) {
+                cashBtn.disabled = false;
+                cashBtn.textContent = `Cash Out ($${(bet * mult).toFixed(2)})`;
+            }
+            handleDemoUsers('FLYING');
+        }, 100);
+    }
+
+    function crashGame() {
+        gameState = 'CRASHED'; gameArea.setAttribute('data-state', 'CRASHED');
+        multEl.style.fontSize = '90px'; multEl.textContent = crashPoint.toFixed(2) + 'x';
+        crashOverlay.style.display = 'flex';
+        globalHistory.unshift(crashPoint.toFixed(2));
+        if (globalHistory.length > 20) globalHistory.pop();
+        updateGlobalHistory();
+        if (userBetActive && !cashOutDone) {
+            userHistory.unshift({ type: 'LOSS', bet: bet.toFixed(2), crash: crashPoint.toFixed(2) });
+            if (userHistory.length > 20) userHistory.pop();
+            updateUserHistory();
+            statEl.textContent = `Crashed! @ ${crashPoint.toFixed(2)}x – Lost $${bet.toFixed(2)}.`;
+        }
+        betBtn.classList.remove('bg-accent-green');
+        setTimeout(startGame, 3000);
+    }
+
+    betBtn.onclick = placeBet;
+    cashBtn.onclick = cashOut;
+
+    // --- Initialization ---
+    window.addEventListener('load', () => {
+        lucide.createIcons();
+        document.querySelectorAll('.nav-button').forEach(button => {
+            button.addEventListener('click', function() {
+                navigate(this.getAttribute('data-page'));
+            });
+        });
+        
+        initializeApp();
+        
+        navigate('menu-page');
+        
+        // Start Aviator game
+        generateInitialGlobalHistory(); 
+        updateUserHistory();
+        startGame();
+    });
+</script>
 </body>
 </html>
