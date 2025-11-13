@@ -1,1282 +1,1116 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
+    <title>উন্নত নেভিগেশন ব্লক সিস্টেম</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NebulaTraderS - Crypto App</title>
-    <!-- Telegram Mini App Script -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons (for simple, clean icons) -->
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, private">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <style>
-        /* Font Configuration */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        
-        /* Custom Dark Theme Colors */
-        :root {
-            --dark-bg: #1A1420; 
-            --accent-color: #CDE051; /* Yellow-green accent */
-            --card-bg: #2B2136;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        #mobile-container {
-            width: 100%;
-            max-width: 420px;
-            min-height: 100vh;
-            background-color: var(--dark-bg);
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-            position: relative;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            background: linear-gradient(135deg, #8B0000, #B22222, #DC143C);
+            color: white;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
-        }
-
-        /* Hide scrollbar */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Hide page */
-        .page {
-            display: none;
-            width: 100%;
-            flex-grow: 1;
-            padding-bottom: 72px; /* Space for bottom navigation */
-            overflow-y: auto;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        /* Menu item style */
-        .menu-item {
-            display: flex;
-            align-items: center;
-            padding: 1rem 0;
-            cursor: pointer;
-            transition: background-color 0.1s;
-        }
-        .menu-item:hover { background-color: rgba(255, 255, 255, 0.05); }
-        .list-icon { color: #ccc; }
-
-        /* Custom component style */
-        .vip-badge {
-            background: linear-gradient(135deg, #FFD700, #DAA520);
-            color: #4B0082;
-            padding: 4px 10px;
-            border-radius: 9999px;
-            font-weight: bold;
-            font-size: 0.75rem;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        }
-        
-        .game-card {
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .game-card-image {
-            width: 100%;
-            padding-top: 120%; 
-            background-size: cover;
-            background-position: center;
-        }
-        .heart-icon {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            padding: 4px;
-            background-color: rgba(0, 0, 0, 0.4);
-            border-radius: 50%;
-            color: white;
-            z-index: 10;
-        }
-
-        /* Aviator Style */
-        :root {
-            --aviator-bg: #0a0e17;
-            --main-card: #181c25;
-            --accent-green: #4CAF50;
-            --accent-red: #ff5722;
-            --mult-color: #ff0;
-            --win-color: #4CAF50;
-            --loss-color: #ff5722;
-        }
-        #game-area {
-            width: 100%;
-            max-width: 800px;
-            height: 400px;
-            background: 
-                linear-gradient(to bottom, #87CEEB 0%, #B0E0E6 100%),
-                linear-gradient(to right, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 100%);
-            background-size: 100% 100%, 300% 100%;
-            background-position: 0 0, 0 0;
-            animation: sky-clouds 40s linear infinite;
-            border: 2px solid #2d3340;
-            border-radius: 12px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            margin-bottom: 1.5rem;
-            display: flex;
             justify-content: center;
             align-items: center;
-            transition: box-shadow 0.5s ease-out;
+            touch-action: none;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
         }
-        @keyframes sky-clouds {
-            0% { background-position: 0 0, 0 0; }
-            100% { background-position: 0 0, -200% 0; }
+        .container {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            max-width: 500px;
+            width: 90%;
+            border: 3px solid #ff4444;
         }
-        @keyframes pulse-green {
-            0% { box-shadow: 0 0 10px rgba(76, 175, 80, 0.4); }
-            50% { box-shadow: 0 0 20px rgba(76, 175, 80, 0.7); }
-            100% { box-shadow: 0 0 10px rgba(76, 175, 80, 0.4); }
+        h1 {
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 28px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
-        #game-area[data-state="FLYING"] {
-             animation: sky-clouds 40s linear infinite, pulse-green 2s infinite ease-in-out;
+        #timer {
+            font-size: 3em;
+            color: #ffcc00;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+            font-family: 'Courier New', monospace;
         }
-        #plane {
-            position: absolute;
-            bottom: 20px;
-            left: 10px;
-            font-size: 50px;
-            transition: transform 0.1s linear;
-            transform-origin: center;
-            transform: translateX(0) translateY(0) rotate(-15deg);
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
         }
-        #multiplier {
-            font-size: 80px;
-            font-weight: 800;
-            color: var(--mult-color);
-            transition: all 0.2s ease-in-out;
-            text-shadow: 0 0 15px rgba(255, 255, 0, 0.7);
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff416c, #ff4b2b);
+            border-radius: 10px;
+            transition: width 1s linear;
         }
-        #crash-overlay {
-            position: absolute;
+        .message {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #ddd;
+        }
+        .warning {
+            color: #ff9999;
+            font-size: 14px;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        .navigation-blocked {
+            color: #ff5555;
+            font-weight: bold;
+            margin-top: 15px;
+            font-size: 18px;
+            background: rgba(255, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .hidden { 
+            display: none; 
+        }
+        
+        /* Navigation buttons blocker overlay */
+        #nav-blocker {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .nav-button {
+            width: 70px;
+            height: 70px;
+            margin: 0 15px;
             background: rgba(255, 0, 0, 0.4);
+            border: 3px solid #ff5555;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 35px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        #close-nav-blocker {
+            margin-top: 30px;
+            padding: 12px 25px;
+            background: #ff5555;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .penalty-notice {
+            color: #ff9999;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+        
+        /* Prevent text selection */
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* Disable tap highlight on mobile */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .attempt-counter {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 1000;
+        }
+        
+        .protection-status {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+        
+        .protection-level {
+            color: #ffcc00;
+            font-weight: bold;
+        }
+        
+        /* Home Button Blocker */
+        #home-blocker {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
             display: none;
             justify-content: center;
             align-items: center;
-            font-size: 2rem;
-            font-weight: bold;
+            flex-direction: column;
             color: white;
+            font-size: 24px;
+            text-align: center;
+            padding: 20px;
+            animation: shake 0.5s ease-in-out;
         }
-        .countdown-bar {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            height: 10px;
-            background-color: #333;
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .home-blocker-content {
+            background: rgba(255, 0, 0, 0.2);
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid #ff4444;
+            max-width: 90%;
+        }
+        
+        #close-home-blocker {
+            margin-top: 20px;
+            padding: 12px 25px;
+            background: #ff5555;
+            border: none;
             border-radius: 5px;
-            overflow: hidden;
-        }
-        .countdown-fill {
-            height: 100%;
-            width: 100%;
-            background-color: var(--accent-red);
-            transition: width linear;
-        }
-        .h-item {
-            background: #333;
             color: white;
-            padding: 4px 8px;
-            margin: 2px 4px 2px 0;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            white-space: nowrap;
-        }
-        .win { background: #00796b; } 
-        .loss { background: #b71c1c; } 
-        .user-win { background: var(--accent-green); }
-        .user-loss { background: var(--accent-red); }
-        .status-win { color: var(--win-color); font-weight: bold; }
-        .status-loss { color: var(--loss-color); font-weight: bold; }
-        .status-betting { color: #ffeb3b; }
-        .bg-accent-green { background-color: var(--accent-green); }
-        .text-win-color { color: var(--win-color); }
-        
-        /* Blue verified tick */
-        .verified-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 16px;
-            height: 16px;
-            background: #1DA1F2;
-            border-radius: 50%;
-            margin-left: 4px;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
         }
         
-        /* Real-time balance animation */
-        @keyframes balance-update {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        .balance-updated {
-            animation: balance-update 0.5s ease-in-out;
-        }
-        
-        /* Referral live updates */
-        .referral-update {
+        /* Game Challenge Styles */
+        .game-btn {
+            padding: 15px 25px;
+            margin: 10px;
+            background: #ff5555;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
-    </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'primary-dark': 'var(--dark-bg)',
-                        'app-accent': 'var(--accent-color)',
-                        'card-bg-dark': 'var(--card-bg)',
-                        'deep-purple': '#332A42',
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body onload="lucide.createIcons()">
-
-<div id="mobile-container" class="no-scrollbar">
-    
-    <!-- #################### Menu Page #################### -->
-    <div id="menu-page" class="page">
-        <!-- Menu Header -->
-        <header class="p-4 flex justify-between items-center text-white bg-black/50 sticky top-0 z-10">
-            <div class="flex items-center space-x-4">
-                <button onclick="showToast('Back button clicked (Placeholder)', 'white')">
-                    <i data-lucide="arrow-left" class="w-6 h-6"></i>
-                </button>
-                <h1 class="text-xl font-semibold">Menu</h1>
-            </div>
-            <div class="flex items-center space-x-3">
-                <button onclick="showToast('Balance dropdown clicked', 'app-accent')">
-                    <i data-lucide="chevron-down" class="w-5 h-5"></i>
-                </button>
-                <button onclick="showToast('More options clicked', 'app-accent')">
-                    <i data-lucide="more-vertical" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- Menu Content -->
-        <main class="p-4 flex-grow">
-            
-            <!-- Deposit Bonus Card -->
-            <div class="bg-[#332A42] p-4 rounded-xl flex justify-between items-center mb-6 shadow-xl cursor-pointer" onclick="navigate('bonus-page')">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 rounded-lg bg-purple-600/70">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#CDE051" stroke="#CDE051" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
-                            <path d="M20 12V7.5L16 3H8L4 7.5V12M20 12H4M20 12L22 17L12 21L2 17L4 12"/>
-                            <line x1="12" y1="3" x2="12" y2="12"/>
-                            <path d="M12 21L12 12"/>
-                            <path d="M10 7L14 7"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 class="text-white font-bold text-lg">Deposit Bonus</h2>
-                        <p class="text-white/60 text-sm">Boost your deposit bonus</p>
-                    </div>
-                </div>
-                <button class="bg-app-accent p-2 rounded-full">
-                    <i data-lucide="arrow-right" class="w-5 h-5 text-primary-dark"></i>
-                </button>
-            </div>
-
-            <!-- Game Catalog Menu Items -->
-            <div class="space-y-0 text-white/90">
-                <div class="menu-item" onclick="navigate('explore-page')">
-                    <i data-lucide="flame" class="list-icon w-6 h-6 mr-4 text-orange-400"></i>
-                    <span class="font-medium">Hot</span>
-                </div>
-                <div class="menu-item" onclick="showToast('Showing recent games...', 'app-accent')">
-                    <i data-lucide="clock" class="list-icon w-6 h-6 mr-4"></i>
-                    <span class="font-medium">Recents</span>
-                </div>
-                <div class="menu-item" onclick="showToast('Showing favorite games...', 'app-accent')">
-                    <i data-lucide="heart" class="list-icon w-6 h-6 mr-4 text-red-500"></i>
-                    <span class="font-medium">Favorites</span>
-                </div>
-                <hr class="border-white/10 my-1">
-                <div class="menu-item justify-between pr-4" onclick="showToast('Casino dropdown clicked. (Static content)', 'app-accent')">
-                    <div class="flex items-center">
-                        <i data-lucide="gem" class="list-icon w-6 h-6 mr-4 text-red-500"></i>
-                        <span class="font-medium">Casino</span>
-                    </div>
-                    <i data-lucide="chevron-up" class="w-4 h-4 text-white/70"></i>
-                </div>
-                <div class="pl-12 space-y-0 text-white/80 border-l border-white/10 ml-4">
-                    <div class="menu-item !py-3" onclick="navigate('explore-page')"><i data-lucide="tag" class="list-icon w-5 h-5 mr-3"></i><span class="text-sm">New Releases</span></div>
-                    <div class="menu-item !py-3" onclick="navigate('explore-page')"><i data-lucide="slot-machine" class="list-icon w-5 h-5 mr-3"></i><span class="text-sm">Slots</span></div>
-                    <div class="menu-item !py-3" onclick="navigate('explore-page')"><i data-lucide="rocket" class="list-icon w-5 h-5 mr-3"></i><span class="text-sm">Crash Games</span></div>
-                    <div class="menu-item !py-3" onclick="navigate('explore-page')"><i data-lucide="monitor" class="list-icon w-5 h-5 mr-3"></i><span class="text-sm">Live Dealer</span></div>
-                    <div class="menu-item !py-3" onclick="navigate('explore-page')"><i data-lucide="coffee" class="list-icon w-5 h-5 mr-3"></i><span class="text-sm">Table Games</span></div>
-                    <div class="menu-item !py-3" onclick="navigate('explore-page')"><i data-lucide="controller" class="list-icon w-5 h-5 mr-3"></i><span class="text-sm">Game Shows</span></div>
-                </div>
-                <hr class="border-white/10 my-1">
-                <div class="menu-item" onclick="showToast('Viewing Providers list...', 'app-accent')">
-                    <i data-lucide="star" class="list-icon w-6 h-6 mr-4 text-yellow-500"></i>
-                    <span class="font-medium">Providers</span>
-                </div>
-                <div class="menu-item" onclick="navigate('bonus-page')">
-                    <i data-lucide="coins" class="list-icon w-6 h-6 mr-4"></i>
-                    <span class="font-medium">Bonus</span>
-                </div>
-                <hr class="border-white/10 my-1">
-                <div class="menu-item justify-between bg-[#332A42] rounded-xl px-4 mt-6 !py-4 shadow-inner" onclick="openSupport()">
-                    <div class="flex items-center">
-                        <i data-lucide="message-square" class="list-icon w-6 h-6 mr-4 text-app-accent"></i>
-                        <span class="font-medium text-white">Live Support</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-app-accent font-bold">24/7</span>
-                        <i data-lucide="chevron-right" class="w-5 h-5 text-app-accent"></i>
-                    </div>
-                </div>
-                <div class="menu-item mt-6" onclick="navigate('profile-page')">
-                    <i data-lucide="settings" class="list-icon w-6 h-6 mr-4"></i>
-                    <span class="font-medium">Settings</span>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- #################### Bonus Page #################### -->
-    <div id="bonus-page" class="page">
-        <header class="p-4 flex justify-between items-center text-white bg-black/50 sticky top-0 z-10">
-            <button onclick="navigate('menu-page')" class="mr-auto"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
-            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">Bonus & Rewards</h1>
-            <div class="flex items-center space-x-3">
-                <div class="flex items-center text-lg font-bold">
-                    <span class="mr-1">$</span><span id="header-balance-bonus" class="balance-display">0.00</span>
-                </div>
-                <button onclick="showToast('Notifications clicked', 'app-accent')"><i data-lucide="bell" class="w-6 h-6"></i></button>
-            </div>
-        </header>
         
-        <main id="bonus-page-content" class="text-white">
-            <!-- Banner Section -->
-            <div class="relative h-48 overflow-hidden bg-card-bg-dark">
-                <img src="https://placehold.co/420x200/2B2136/CDE051?text=Exclusive+VIP+Rewards+Banner" alt="VIP Banner" class="w-full h-full object-cover opacity-60"/>
-                <div class="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-primary-dark/80 to-transparent">
-                    <h2 class="text-2xl font-bold">EXCLUSIVE VIP REWARDS</h2>
-                    <button class="bg-app-accent text-primary-dark font-bold px-4 py-2 rounded-lg mt-2 w-max text-sm flex items-center">
-                        MORE INFO <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Recent Wins -->
-            <div class="p-4">
-                <h2 class="text-lg font-bold mb-3 flex items-center justify-between">
-                    Recent Big Wins
-                    <span class="text-xs text-app-accent border border-app-accent px-2 py-0.5 rounded-full cursor-pointer hover:bg-app-accent hover:text-primary-dark transition-colors" onclick="showToast('Showing all wins...', 'app-accent')">All</span>
-                </h2>
-                <div class="grid grid-cols-4 gap-3">
-                    <div class="relative text-xs"><img src="https://placehold.co/100x120/555/fff?text=Slot+A" class="w-full rounded-lg object-cover"/><p class="absolute bottom-0 left-0 right-0 bg-black/70 p-1 text-center rounded-b-lg">$129.6</p></div>
-                    <div class="relative text-xs"><img src="https://placehold.co/100x120/555/fff?text=Slot+B" class="w-full rounded-lg object-cover"/><p class="absolute bottom-0 left-0 right-0 bg-black/70 p-1 text-center rounded-b-lg">$78.4</p></div>
-                    <div class="relative text-xs"><img src="https://placehold.co/100x120/555/fff?text=Slot+C" class="w-full rounded-lg object-cover"/><p class="absolute bottom-0 left-0 right-0 bg-black/70 p-1 text-center rounded-b-lg">$12.12</p></div>
-                    <div class="relative text-xs"><img src="https://placehold.co/100x120/555/fff?text=Slot+D" class="w-full rounded-lg object-cover"/><p class="absolute bottom-0 left-0 right-0 bg-black/70 p-1 text-center rounded-b-lg">$10.64K</p></div>
-                </div>
-            </div>
-
-            <!-- Hot Games Slider -->
-            <div class="p-4 pt-0">
-                <h2 class="text-lg font-bold mb-3 flex items-center"><i data-lucide="flame" class="w-5 h-5 text-red-500 mr-2"></i> Hot Games</h2>
-                <div class="flex space-x-3 overflow-x-auto no-scrollbar">
-                    <div class="game-card flex-shrink-0 w-28 bg-card-bg-dark" onclick="showToast('Playing Sweet Bonanza...', 'app-accent')"><i data-lucide="heart" class="heart-icon w-4 h-4"></i><div class="game-card-image" style="background-image: url('https://placehold.co/120x150/FF69B4/FFFFFF?text=Sweet+Bonanza');"></div><div class="p-2 pt-1 text-center"><p class="text-xs font-semibold truncate">Sweet Bonanza</p></div></div>
-                    <div class="game-card flex-shrink-0 w-28 bg-card-bg-dark" onclick="showToast('Playing Fortune Gems 5...', 'app-accent')"><i data-lucide="heart" class="heart-icon w-4 h-4 fill-red-500 text-red-500"></i><div class="game-card-image" style="background-image: url('https://placehold.co/120x150/FFB800/2B2136?text=Fortune+5');"></div><div class="p-2 pt-1 text-center"><p class="text-xs font-semibold truncate">Fortune Gems 5</p></div></div>
-                    <div class="game-card flex-shrink-0 w-28 bg-card-bg-dark" onclick="showToast('Playing Fishing...', 'app-accent')"><i data-lucide="heart" class="heart-icon w-4 h-4"></i><div class="game-card-image" style="background-image: url('https://placehold.co/120x150/1E90FF/FFFFFF?text=Fish+Hunter');"></div><div class="p-2 pt-1 text-center"><p class="text-xs font-semibold truncate">Fish Hunter</p></div></div>
-                    <div class="game-card flex-shrink-0 w-28 bg-card-bg-dark" onclick="navigate('explore-page')"><i data-lucide="heart" class="heart-icon w-4 h-4"></i><div class="game-card-image" style="background-image: url('https://placehold.co/120x150/3A3A3A/CDE051?text=Aviator');"></div><div class="p-2 pt-1 text-center"><p class="text-xs font-semibold truncate">Aviator</p></div></div>
-                </div>
-            </div>
-            
-            <div class="p-4 pt-0 text-center">
-                <button onclick="claimDailyBonus()" class="w-full bg-app-accent text-primary-dark py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-app-accent/50 transition-shadow">
-                    CLAIM DAILY BONUS
-                </button>
-            </div>
-        </main>
-        <div id="bonus-page-placeholder" class="hidden flex-col items-center justify-center text-center p-8 h-full">
-            <i data-lucide="info" class="w-16 h-16 text-app-accent mb-4"></i>
-            <h2 class="text-xl font-bold text-white">No Offers Available</h2>
-            <p class="text-white/70 mt-2">Please deposit USDT to view offers and bonuses.</p>
-            <button onclick="navigate('deposit-page')" class="mt-6 bg-app-accent text-primary-dark font-bold px-6 py-2 rounded-lg">Deposit Now</button>
-        </div>
-    </div>
-
-    <!-- #################### Explore Page – Aviator Game #################### -->
-    <div id="explore-page" class="page">
-        <header class="p-4 flex justify-between items-center text-white bg-black/50 sticky top-0 z-10">
-            <button onclick="navigate('menu-page')" class="mr-auto"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
-            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">🛩️ Aviator</h1>
-            <div class="flex items-center space-x-3">
-                <button onclick="showToast('Sort menu clicked', 'app-accent')"><i data-lucide="chevron-down" class="w-5 h-5"></i></button>
-                <button onclick="showToast('More options clicked', 'app-accent')"><i data-lucide="more-vertical" class="w-5 h-5"></i></button>
-            </div>
-        </header>
-
-        <main class="p-4 sm:p-8 text-white">
-            <div id="balance" class="text-xl font-semibold mb-4 text-green-400 balance-display">Balance: $0.00 USDT</div>
-            
-            <div class="w-full max-w-2xl flex flex-col gap-3 mb-4">
-                <div id="global-history-container" class="bg-gray-800 p-3 rounded-lg shadow-xl">
-                    <strong class="text-sm text-gray-400 block mb-1">Global History (High Multipliers):</strong>
-                    <div id="hist" class="flex flex-nowrap overflow-x-auto py-1 whitespace-nowrap"></div>
-                </div>
-                <div id="my-history-container" class="bg-gray-800 p-3 rounded-lg shadow-xl">
-                    <strong class="text-sm text-gray-400 block mb-1">My History:</strong>
-                    <div id="user-hist-list" class="flex flex-nowrap overflow-x-auto py-1 whitespace-nowrap"></div>
-                </div>
-            </div>
-
-            <div id="game-area" data-state="WAITING">
-                <div id="multiplier" class="text-center">1.00x</div>
-                <div id="plane">✈️</div>
-                <div id="crash-overlay">CRASHED!</div>
-                <div class="countdown-bar"><div id="countdown-fill" class="countdown-fill"></div></div>
-            </div>
-
-            <div id="panel" class="w-full max-w-sm bg-gray-800 p-4 rounded-lg shadow-2xl mb-6 flex flex-col gap-4 mx-auto">
-                <div id="status" class="text-lg font-medium text-center text-yellow-400">Game is starting...</div>
-                <div class="flex gap-4">
-                    <input type="number" id="bet" placeholder="Bet Amount" min="0.1" step="0.1" value="1" class="w-1/2 p-3 text-lg bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <button id="betBtn" class="w-1/2 p-3 text-lg font-bold rounded-lg transition-colors bg-gray-700 hover:bg-gray-600 disabled:bg-gray-600 disabled:cursor-not-allowed">Place Bet</button>
-                </div>
-                <button id="cashBtn" disabled class="p-3 text-xl font-bold rounded-lg transition-colors bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 disabled:text-gray-400">Cash Out</button>
-            </div>
-
-            <div id="live-bets" class="w-full max-w-2xl bg-gray-800 p-4 rounded-lg shadow-2xl mx-auto">
-                <h3 class="text-xl font-semibold mb-3 text-left">Live Bets (Demo)</h3>
-                <table class="min-w-full text-sm text-left text-gray-400">
-                    <thead class="text-xs text-gray-200 uppercase bg-gray-700 rounded-t-lg">
-                        <tr>
-                            <th scope="col" class="px-3 py-2 rounded-tl-lg">User</th>
-                            <th scope="col" class="px-3 py-2 text-right">Bet (USDT)</th>
-                            <th scope="col" class="px-3 py-2 text-right">Status</th> 
-                            <th scope="col" class="px-3 py-2 rounded-tr-lg text-right">Payout</th>
-                        </tr>
-                    </thead>
-                    <tbody id="demo-bets-list"></tbody>
-                </table>
-            </div>
-        </main>
-    </div>
-
-    <!-- #################### Referral Page #################### -->
-    <div id="referral-page" class="page">
-        <header class="p-4 flex justify-between items-center text-white bg-black/50 sticky top-0 z-10">
-            <button onclick="navigate('menu-page')" class="mr-auto"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
-            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">Referral</h1>
-            <div class="flex items-center space-x-3">
-                <button onclick="showToast('Referral filter clicked', 'app-accent')"><i data-lucide="chevron-down" class="w-5 h-5"></i></button>
-                <button onclick="showToast('Referral options clicked', 'app-accent')"><i data-lucide="more-vertical" class="w-5 h-5"></i></button>
-            </div>
-        </header>
-
-        <main class="p-4 text-white">
-            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg border border-white/10">
-                <h2 class="text-sm text-white/70 mb-2">Lifetime Referral Rewards</h2>
-                <div class="flex justify-between items-center">
-                    <p class="text-3xl font-bold text-app-accent" id="lifetime-rewards">$0.00 <span class="text-white/70 text-sm">USDT</span></p>
-                    <button class="text-white/70 flex items-center text-sm hover:text-white" onclick="showToast('Viewing network details...', 'app-accent')">
-                        Network: <span id="referral-network">0</span> <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="mt-4 space-y-3">
-                <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg flex justify-between items-center">
-                    <div>
-                        <p class="text-sm text-white/70">Available Commission Rewards</p>
-                        <p class="text-xl font-bold text-app-accent" id="commission-rewards">$0.00</p>
-                        <p class="text-xs text-white/50">Total Received: $<span id="total-commission">0</span></p>
-                    </div>
-                    <button class="bg-app-accent text-primary-dark px-4 py-2 rounded-lg font-bold text-sm" onclick="claimCommission()">Claim</button>
-                </div>
-                <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg flex justify-between items-center">
-                    <div>
-                        <p class="text-sm text-white/70">Available Referral Rewards</p>
-                        <p class="text-xl font-bold text-app-accent" id="referral-rewards">$0.00</p>
-                        <p class="text-xs text-white/50">Locked Rewards: $<span id="locked-rewards">0</span></p>
-                    </div>
-                    <button class="bg-app-accent text-primary-dark px-4 py-2 rounded-lg font-bold text-sm" onclick="claimReferralRewards()">Claim</button>
-                </div>
-            </div>
-
-            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg mt-4 border border-white/10">
-                <h3 class="text-white font-semibold mb-2">Referral Link</h3>
-                <div class="flex items-center bg-deep-purple/50 p-3 rounded-lg border border-white/10">
-                    <input type="text" id="referral-link" value="https://t.me/NebulaTraderS_Bot?start=ref_" readonly class="flex-grow bg-transparent text-sm text-app-accent focus:outline-none" />
-                    <button onclick="copyToClipboard('referral-link')" class="bg-app-accent text-primary-dark px-3 py-1 rounded-lg font-bold text-xs flex items-center ml-2">
-                        <i data-lucide="copy" class="w-4 h-4 mr-1"></i> Copy
-                    </button>
-                </div>
-            </div>
-
-            <div class="mt-6">
-                <h3 class="text-white font-bold mb-3 flex items-center">
-                    <span class="w-3 h-3 bg-app-accent rounded-full mr-2"></span>
-                    Global Commission Rewards
-                </h3>
-                <div class="bg-card-bg-dark rounded-xl p-4">
-                    <div class="flex justify-between text-white/70 text-xs font-semibold mb-3 border-b border-white/10 pb-2">
-                        <span>Username</span>
-                        <span>Available Rewards</span>
-                    </div>
-                    <div id="commission-list" class="space-y-2 text-sm">
-                        <!-- Dynamic commission list will be populated here -->
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- #################### Profile Page #################### -->
-    <div id="profile-page" class="page">
-        <header class="p-4 flex justify-between items-center text-white bg-black/50 sticky top-0 z-10">
-            <button onclick="navigate('menu-page')" class="mr-auto"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
-            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">Profile</h1>
-            <div class="flex items-center space-x-3">
-                <button onclick="showToast('Profile filter clicked', 'app-accent')"><i data-lucide="chevron-down" class="w-5 h-5"></i></button>
-                <button onclick="showToast('Profile options clicked', 'app-accent')"><i data-lucide="more-vertical" class="w-5 h-5"></i></button>
-            </div>
-        </header>
-
-        <main class="text-white">
-            <div class="p-4 relative bg-card-bg-dark border-b-2 border-app-accent/30 shadow-2xl overflow-hidden">
-                <img src="https://placehold.co/420x200/2B2136/CDE051?text=User+Art" alt="Background art" class="absolute inset-0 w-full h-full object-cover opacity-20"/>
-                
-                <div class="relative z-10">
-                    <div class="flex items-center mb-6">
-                        <div id="profile-initials" class="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-lg font-bold mr-3 border-2 border-app-accent/50 shadow-md">
-                            TG
-                        </div>
-                        <div>
-                            <div class="flex items-center text-xl font-bold">
-                                <span id="profile-username">telegram_user</span>
-                                <div class="verified-badge">
-                                    <i data-lucide="check" class="w-3 h-3 text-white"></i>
-                                </div>
-                            </div>
-                            <div class="text-xs text-white/70 flex items-center mt-0.5">
-                                <span class="mr-1">ID: <span id="profile-uid">000000</span></span>
-                                <i data-lucide="copy" class="w-3 h-3 cursor-pointer" onclick="copyToClipboard(document.getElementById('profile-uid').innerText)"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-deep-purple/50 p-3 rounded-xl flex items-center justify-between border border-white/10 shadow-inner">
-                        <div class="flex items-center space-x-3">
-                            <span class="vip-badge">VIP 1</span>
-                            <div class="text-xs">
-                                <p class="text-white font-semibold">10 XP to VIP 2</p>
-                                <div class="w-32 h-1 bg-white/30 rounded-full mt-1">
-                                    <div class="bg-app-accent h-1 rounded-full" style="width: 25%;"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="text-xs text-app-accent font-bold flex items-center" onclick="showToast('Viewing VIP details...', 'app-accent')">
-                            View <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-4 bg-primary-dark">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-white/60 font-medium flex items-center"><i data-lucide="wallet" class="w-5 h-5 mr-2 text-app-accent"></i>Total Balance</h2>
-                    <div class="flex items-center text-xl font-bold text-app-accent balance-display">
-                        <i data-lucide="dollar-sign" class="w-5 h-5 mr-1"></i>
-                        <span id="profile-total-balance">0.00</span>
-                        <span class="text-sm ml-1 text-white/80">USDT</span>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-3 gap-3 text-center">
-                    <div class="flex flex-col items-center p-2 rounded-lg bg-card-bg-dark/80 hover:bg-card-bg-dark transition-colors cursor-pointer border border-white/10" onclick="navigate('deposit-page')">
-                        <i data-lucide="package" class="w-6 h-6 text-app-accent mb-1"></i><span class="text-xs text-white/80">Deposit</span>
-                    </div>
-                    <div class="flex flex-col items-center p-2 rounded-lg bg-card-bg-dark/80 hover:bg-card-bg-dark transition-colors cursor-pointer border border-white/10" onclick="navigate('withdraw-page')">
-                        <i data-lucide="banknote" class="w-6 h-6 text-app-accent mb-1"></i><span class="text-xs text-white/80">Withdraw</span>
-                    </div>
-                    <div class="flex flex-col items-center p-2 rounded-lg bg-card-bg-dark/80 hover:bg-card-bg-dark transition-colors cursor-pointer border border-white/10" onclick="showToast('Transactions clicked', 'app-accent')">
-                        <i data-lucide="clipboard-list" class="w-6 h-6 text-app-accent mb-1"></i><span class="text-xs text-white/80">Transactions</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-4 bg-card-bg-dark mt-2 rounded-t-xl">
-                <h2 class="text-white text-lg font-bold mb-3">Stats</h2>
-                <div class="grid grid-cols-3 gap-4 text-center">
-                    <div class="p-3 bg-deep-purple rounded-lg border border-white/10"><p class="text-xl font-bold text-app-accent" id="total-wins">0</p><p class="text-xs text-white/70">Total Wins</p></div>
-                    <div class="p-3 bg-deep-purple rounded-lg border border-white/10"><p class="text-xl font-bold text-app-accent" id="total-bets">0</p><p class="text-xs text-white/70">Total Bets</p></div>
-                    <div class="p-3 bg-deep-purple rounded-lg border border-white/10"><p class="text-xl font-bold text-app-accent flex justify-center items-center"><i data-lucide="dollar-sign" class="w-4 h-4 mr-0.5"></i><span id="total-wagered">0</span></p><p class="text-xs text-white/70">Total Wagered</p></div>
-                </div>
-            </div>
-
-            <div class="p-4 space-y-2">
-                <h2 class="text-white text-lg font-bold mb-3">Settings & Support</h2>
-                <div class="bg-card-bg-dark rounded-xl space-y-1 p-2 border border-white/10">
-                    <div class="flex justify-between items-center p-2 hover:bg-deep-purple/50 rounded-lg cursor-pointer" onclick="showToast('General settings clicked', 'app-accent')"><span class="text-white/90">General</span><i data-lucide="chevron-right" class="w-5 h-5 text-white/50"></i></div>
-                    <div class="flex justify-between items-center p-2 hover:bg-deep-purple/50 rounded-lg cursor-pointer" onclick="showToast('Security settings clicked', 'app-accent')"><span class="text-white/90">Security</span><i data-lucide="chevron-right" class="w-5 h-5 text-white/50"></i></div>
-                    <div class="flex justify-between items-center p-2 hover:bg-deep-purple/50 rounded-lg cursor-pointer" onclick="openSupport()"><span class="text-white/90">Customer Support</span><i data-lucide="chevron-right" class="w-5 h-5 text-white/50"></i></div>
-                    <div class="flex justify-between items-center p-2 hover:bg-deep-purple/50 rounded-lg cursor-pointer" onclick="showToast('Legal documents clicked', 'app-accent')"><span class="text-white/90">Legal</span><i data-lucide="chevron-right" class="w-5 h-5 text-white/50"></i></div>
-                </div>
-                <button class="w-full bg-red-600/70 py-3 rounded-xl text-white font-bold mt-4 hover:bg-red-700/80 transition-colors shadow-lg" onclick="logout()">Log Out</button>
-            </div>
-        </main>
-    </div>
-
-    <!-- #################### Deposit Page #################### -->
-    <div id="deposit-page" class="page">
-        <header class="p-4 flex justify-between items-center text-white bg-black/50 sticky top-0 z-10">
-            <button onclick="navigate('profile-page')" class="mr-auto"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
-            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">Deposit</h1>
-        </header>
-        <main class="p-4 text-white space-y-6">
-            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg">
-                <label for="deposit-amount" class="block text-sm font-medium text-white/70 mb-2">Amount</label>
-                <div class="relative">
-                    <input type="number" id="deposit-amount" placeholder="Enter amount" class="w-full p-3 bg-deep-purple text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-accent">
-                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50">USDT</span>
-                </div>
-            </div>
-
-            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg">
-                <h3 class="text-white font-semibold mb-2">Deposit Address (USDT - ERC20/BEP20)</h3>
-                <div class="flex items-center bg-deep-purple p-3 rounded-lg border border-white/20">
-                    <input type="text" id="deposit-address" value="0x40ecab7fcd672541aee574990d0ee03adbcbc4e2" readonly class="flex-grow bg-transparent text-sm text-app-accent focus:outline-none" />
-                    <button onclick="copyToClipboard('deposit-address')" class="bg-app-accent text-primary-dark px-3 py-1 rounded-lg font-bold text-xs flex items-center ml-2">
-                        <i data-lucide="copy" class="w-4 h-4 mr-1"></i> Copy
-                    </button>
-                </div>
-            </div>
-
-            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg text-sm text-white/80 space-y-2">
-                <h3 class="text-white font-semibold mb-2">Instructions</h3>
-                <p>1. Copy the address above.</p>
-                <p>2. Send the desired amount of USDT to this address. Please use the ERC20 or BEP20 network.</p>
-                <p>3. After sending, copy the transaction hash (TxID) from your wallet.</p>
-                <p>4. Paste the transaction hash below as proof of deposit.</p>
-            </div>
-            
-            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg">
-                <label for="transaction-proof" class="block text-sm font-medium text-white/70 mb-2">Transaction Hash (TxID)</label>
-                <input type="text" id="transaction-proof" placeholder="Paste your transaction hash here" class="w-full p-3 bg-deep-purple text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-accent">
-            </div>
-
-            <button onclick="submitDeposit()" class="w-full bg-app-accent text-primary-dark py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-app-accent/50 transition-shadow">
-                Submit Deposit
-            </button>
-        </main>
-    </div>
-
-    <!-- #################### Withdraw Page #################### -->
-    <div id="withdraw-page" class="page">
-        <header class="p-4 flex justify-between items-center text-white bg-black/50 sticky top-0 z-10">
-            <button onclick="navigate('profile-page')" class="mr-auto"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
-            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">Withdraw</h1>
-        </header>
-        <main class="p-4 text-white space-y-6">
-            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg">
-                <label for="withdraw-amount" class="block text-sm font-medium text-white/70 mb-2">Amount (No Limit)</label>
-                <div class="relative">
-                    <input type="number" id="withdraw-amount" placeholder="Enter amount" class="w-full p-3 bg-deep-purple text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-accent">
-                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50">USDT</span>
-                </div>
-            </div>
-
-            <div class="bg-card-bg-dark p-4 rounded-xl shadow-lg">
-                <label for="withdraw-address" class="block text-sm font-medium text-white/70 mb-2">Your USDT Address</label>
-                <input type="text" id="withdraw-address" placeholder="Paste your withdrawal address here" class="w-full p-3 bg-deep-purple text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-accent">
-            </div>
-
-            <button onclick="submitWithdrawal()" class="w-full bg-app-accent text-primary-dark py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-app-accent/50 transition-shadow">
-                Submit Withdrawal
-            </button>
-        </main>
-    </div>
-
-    <!-- #################### Bottom Navigation #################### -->
-    <footer class="w-full bg-[#2B2136] border-t border-white/10 text-white/70 fixed bottom-0 max-w-[420px]">
-        <div class="flex justify-around items-center h-16">
-            <button data-page="menu-page" class="nav-button flex flex-col items-center text-xs space-y-1 hover:text-white transition-colors"><i data-lucide="menu" class="w-6 h-6"></i><span>Menu</span></button>
-            <button data-page="explore-page" class="nav-button flex flex-col items-center text-xs space-y-1 hover:text-white transition-colors"><i data-lucide="compass" class="w-6 h-6"></i><span>Explore</span></button>
-            <button data-page="bonus-page" class="nav-button flex flex-col items-center text-xs space-y-1 hover:text-white transition-colors"><i data-lucide="gift" class="w-6 h-6"></i><span>Bonus</span></button>
-            <button data-page="referral-page" class="nav-button flex flex-col items-center text-xs space-y-1 hover:text-white transition-colors"><i data-lucide="users" class="w-6 h-6"></i><span>Referral</span></button>
-            <button data-page="profile-page" class="nav-button flex flex-col items-center text-xs space-y-1 hover:text-white transition-colors"><i data-lucide="user" class="w-6 h-6"></i><span>Profile</span></button>
-        </div>
-    </footer>
-</div>
-
-<!-- Support Button -->
-<button class="fixed right-4 bottom-24 p-3 rounded-full shadow-lg z-20" style="background-color: var(--accent-color);" onclick="openSupport()">
-    <i data-lucide="headphones" class="w-6 h-6 text-primary-dark"></i>
-</button>
-
-<script>
-    // --- Global Logic & Navigation ---
-    function navigate(targetPageId) {
-        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-        const targetPage = document.getElementById(targetPageId);
-        if (targetPage) {
-            targetPage.classList.add('active');
-            updateNavActiveState(targetPageId);
-            document.getElementById('mobile-container').scrollTop = 0;
-            
-            // Update referral page if navigated to it
-            if (targetPageId === 'referral-page') {
-                updateReferralData();
-            }
+        .game-btn:hover {
+            background: #ff3333;
+            transform: scale(1.1);
         }
-    }
+        
+        #game-status {
+            margin-top: 15px;
+            font-size: 18px;
+            color: #ffcc00;
+        }
+        
+        /* Why Locked Button */
+        #why-locked {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: transparent;
+            border: 2px solid #ffcc00;
+            border-radius: 5px;
+            color: #ffcc00;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        #why-locked:hover {
+            background: rgba(255, 204, 0, 0.2);
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;" ondragstart="return false;" onselectstart="return false;">
+    <noscript>
+        <div class="container">
+            <h1>JavaScript নিষ্ক্রিয়!</h1>
+            <p>দয়া করে JavaScript চালু করুন।</p>
+        </div>
+    </noscript>
+    
+    <div class="attempt-counter" id="attempt-counter">
+        প্রচেষ্টা: <span id="attempt-count">0</span>
+    </div>
+    
+    <div class="protection-status" id="protection-status">
+        সুরক্ষা স্তর: <span class="protection-level">অতিরিক্ত উচ্চ</span>
+    </div>
+    
+    <div id="nav-blocker" class="hidden">
+        <h2>🚫 নেভিগেশন বাটন ব্লক করা হয়েছে!</h2>
+        <div class="nav-buttons">
+            <div class="nav-button">←</div>
+            <div class="nav-button">◯</div>
+            <div class="nav-button">☰</div>
+        </div>
+        <p><strong>ব্যাক, হোম এবং রিসেন্ট অ্যাপস বাটন সম্পূর্ণ ব্লক করা হয়েছে</strong></p>
+        <p>৫ মিনিট শেষ না হওয়া পর্যন্ত এই বাটনগুলি কাজ করবে না</p>
+        <p class="penalty-notice" id="penalty-text"></p>
+        <button id="close-nav-blocker">বুঝেছি, বাটন চাপবো না</button>
+    </div>
+    
+    <!-- Home Button Blocker -->
+    <div id="home-blocker">
+        <div class="home-blocker-content">
+            <h2>🚫 হোম বাটন ব্লক করা হয়েছে!</h2>
+            <div class="nav-button" style="margin: 20px auto;">◯</div>
+            <p><strong>হোম বাটন সম্পূর্ণ ব্লক করা হয়েছে</strong></p>
+            <p>৫ মিনিট শেষ না হওয়া পর্যন্ত হোম বাটন কাজ করবে না</p>
+            <p class="penalty-notice" id="home-penalty-text"></p>
+            <p class="warning">আপনি অ্যাপ থেকে বের হতে পারবেন না</p>
+            <button id="close-home-blocker">ঠিক আছে</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h1>⏳ ৫ মিনিট অপেক্ষা করুন</h1>
+        <div id="timer" aria-live="polite">5:00</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <p class="message">এই পেজটি ৫ মিনিটের জন্য সম্পূর্ণ লক করা হয়েছে</p>
+        <p class="navigation-blocked">🚫 নেভিগেশন বাটন ব্লক করা হয়েছে</p>
+        <p class="warning">• ব্যাক বাটন (←) - ব্লক করা হয়েছে<br>
+           • হোম বাটন (◯) - ব্লক করা হয়েছে<br>
+           • রিসেন্ট অ্যাপস বাটন (☰) - ব্লক করা হয়েছে</p>
+        <p class="warning">কোনো বাটনই কাজ করবে না। অপেক্ষা করুন...</p>
+        <button id="why-locked">কেন এই পেজ লক করা?</button>
+    </div>
 
-    function updateNavActiveState(activePageId) {
-        document.querySelectorAll('.nav-button').forEach(button => {
-            const pageId = button.getAttribute('data-page');
-            const iconSpan = button.querySelector('span');
-            button.classList.remove('text-app-accent');
-            button.classList.add('text-white/70');
-            if(iconSpan) iconSpan.classList.remove('font-bold');
-            if (pageId === activePageId) {
-                button.classList.add('text-app-accent');
-                button.classList.remove('text-white/70');
-                if(iconSpan) iconSpan.classList.add('font-bold');
+    <script>
+        // Prevent iFrame breakout
+        if (window.top !== window.self) {
+            window.top.location = window.self.location;
+        }
+
+        // Fullscreen mode with retry
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            const fullscreenPromise = elem.requestFullscreen ? 
+                elem.requestFullscreen() :
+                elem.webkitRequestFullscreen ? 
+                elem.webkitRequestFullscreen() :
+                elem.msRequestFullscreen ? 
+                elem.msRequestFullscreen() : 
+                Promise.resolve();
+            
+            fullscreenPromise.catch(() => {
+                // Retry after a short delay
+                setTimeout(enterFullscreen, 1000);
+            });
+        }
+        
+        // Enter fullscreen immediately
+        enterFullscreen();
+        
+        // Maintain fullscreen aggressively
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement && isLocked) {
+                setTimeout(enterFullscreen, 100);
+                showAlert("ফুলস্ক্রিন মোডে থাকা বাধ্যতামূলক!");
             }
         });
-    }
 
-    function copyToClipboard(elementIdOrText) {
-        let textToCopy;
-        const inputElement = document.getElementById(elementIdOrText);
-        textToCopy = inputElement ? inputElement.value : elementIdOrText;
-        
-        if (textToCopy) {
-            navigator.clipboard.writeText(textToCopy)
-                .then(() => showToast(`Copied: ${textToCopy.substring(0, 15)}...`, "app-accent"))
-                .catch(err => showToast("Failed to copy.", "red-500"));
-        }
-    }
+        // Timer and lock variables
+        let timeLeft;
+        let isLocked = true;
+        const timerDisplay = document.getElementById('timer');
+        const progressBar = document.getElementById('progress-bar');
+        const attemptCounter = document.getElementById('attempt-count');
+        let devToolsDetected = false;
+        let backButtonPressed = false;
+        let historyEntries = 0;
+        const maxHistoryEntries = 10000;
+        let navButtonAttempts = 0;
+        let homeButtonAttempts = 0;
+        let lastVisibilityChange = Date.now();
+        let isPageHidden = false;
+        let lastBackButtonTime = 0;
+        let backButtonPressCount = 0;
+        let homeButtonPressCount = 0;
+        let recentAppsPressCount = 0;
 
-    function showToast(message, color) {
-        const toast = document.createElement('div');
-        toast.textContent = message;
-        toast.className = `fixed bottom-36 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg text-sm font-semibold shadow-xl transition-opacity duration-300 z-50`;
-        toast.style.backgroundColor = color === "app-accent" ? 'var(--accent-color)' : color;
-        toast.style.color = color === "app-accent" ? 'var(--dark-bg)' : 'white';
-        document.body.appendChild(toast);
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 300);
-        }, 2000);
-    }
+        // Advanced APIs
+        let wakeLock = null;
+        let peerConnection = null;
+        let audioContext = null;
+        let audioBeep = null;
 
-    // --- Firebase and Telegram Integration ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyCho5RtEIoXnNlNNrpBg65BmTpJY23Se7Y",
-        authDomain: "maillbeex.firebaseapp.com",
-        databaseURL: "https://maillbeex-default-rtdb.firebaseio.com",
-        projectId: "maillbeex",
-        storageBucket: "maillbeex.appspot.com",
-        messagingSenderId: "5938669413",
-        appId: "1:5938669413:web:34b6bbbbb0e81628a2a38c",
-        measurementId: "G-F6YNLNQSK7"
-    };
+        // Initialize advanced features
+        initializeAdvancedFeatures();
 
-    let db;
-    let tgUser;
-    let userDocRef;
-    let currentUserBalance = 0;
-    let referralData = {
-        lifetimeRewards: 0,
-        commissionRewards: 0,
-        referralRewards: 0,
-        totalCommission: 0,
-        lockedRewards: 0,
-        referralNetwork: 0
-    };
-
-    function initializeApp() {
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
-
-        try {
-            const tg = window.Telegram.WebApp;
-            tg.ready();
-            tgUser = tg.initDataUnsafe?.user;
-
-            if (tgUser && tgUser.id) {
-                loadUserData(tgUser);
-            } else {
-                // Fallback for testing outside Telegram
-                console.warn("Telegram user data not found. Using mock user.");
-                tgUser = { id: '12345678', username: 'test_user', first_name: 'Test', last_name: 'User' };
-                loadUserData(tgUser);
+        function initializeAdvancedFeatures() {
+            // Screen Wake Lock API
+            if ('wakeLock' in navigator) {
+                requestWakeLock();
             }
-        } catch (error) {
-            console.error("Telegram Web App script not loaded or failed.", error);
-            // Fallback for testing outside Telegram
-             tgUser = { id: '12345678', username: 'test_user', first_name: 'Test', last_name: 'User' };
-             loadUserData(tgUser);
+
+            // WebRTC Peer Connection for connection monitoring
+            createPeerConnection();
+
+            // Audio Context for beep sound
+            initializeAudio();
+
+            // Device orientation monitoring
+            initializeOrientationMonitoring();
+
+            // Battery status monitoring
+            initializeBatteryMonitoring();
         }
-    }
 
-    function loadUserData(user) {
-        updateProfileUI(user);
-        userDocRef = db.collection('users').doc(user.id.toString());
+        // Screen Wake Lock API
+        async function requestWakeLock() {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                wakeLock.addEventListener('release', () => {
+                    if (isLocked) {
+                        showAlert("স্ক্রিন লক মুক্ত! পেজে ফিরে আসুন।");
+                        timeLeft += 60;
+                        updateTimerDisplay();
+                        requestWakeLock(); // Retry
+                    }
+                });
+            } catch (e) {
+                console.warn("Screen Wake Lock সমর্থিত নয়।");
+            }
+        }
 
-        userDocRef.onSnapshot(doc => {
-            if (doc.exists) {
-                const data = doc.data();
-                currentUserBalance = data.balance || 0;
+        // WebRTC Peer Connection for connection monitoring
+        function createPeerConnection() {
+            try {
+                const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+                peerConnection = new RTCPeerConnection(configuration);
                 
-                // Update referral data if available
-                if (data.referralData) {
-                    referralData = {...referralData, ...data.referralData};
+                peerConnection.oniceconnectionstatechange = () => {
+                    if (peerConnection.iceConnectionState === 'disconnected' && isLocked) {
+                        showAlert("অ্যাপ সংযোগ হারিয়েছে! পেজে ফিরে আসুন।");
+                        timeLeft += 60;
+                        updateTimerDisplay();
+                        showHomeBlocker();
+                    }
+                };
+
+                // Create a dummy data channel to keep connection alive
+                peerConnection.createDataChannel("lockChannel");
+                peerConnection.createOffer().then(offer => {
+                    peerConnection.setLocalDescription(offer);
+                });
+            } catch (e) {
+                console.warn("WebRTC সমর্থিত নয়।");
+            }
+        }
+
+        // Audio initialization for beep sound
+        function initializeAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Create beep sound
+                function createBeep() {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 800;
+                    gainNode.gain.value = 0.1;
+                    
+                    oscillator.start();
+                    
+                    setTimeout(() => {
+                        oscillator.stop();
+                    }, 500);
                 }
                 
-                // Update user stats
-                updateUserStats(data.stats || {});
-            } else {
-                // Create new user document
-                currentUserBalance = 0;
-                userDocRef.set({
-                    username: user.username,
-                    first_name: user.first_name,
-                    balance: 0,
-                    referralData: referralData,
-                    stats: { totalWins: 0, totalBets: 0, totalWagered: 0 },
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                audioBeep = createBeep;
+            } catch (e) {
+                console.warn("Web Audio API সমর্থিত নয়।");
+            }
+        }
+
+        // Device Orientation Monitoring
+        function initializeOrientationMonitoring() {
+            if ('DeviceOrientationEvent' in window) {
+                let lastOrientation = null;
+                
+                window.addEventListener('deviceorientation', (event) => {
+                    if (isLocked) {
+                        const { beta, gamma } = event;
+                        const currentOrientation = { beta, gamma };
+
+                        if (lastOrientation) {
+                            const orientationChange = Math.abs(currentOrientation.beta - lastOrientation.beta) +
+                                                     Math.abs(currentOrientation.gamma - lastOrientation.gamma);
+                            if (orientationChange > 30) {
+                                showAlert("ডিভাইস ঘোরানো শনাক্ত! +৪৫ সেকেন্ড যোগ!");
+                                timeLeft += 45;
+                                updateTimerDisplay();
+                                showHomeBlocker("অননুমোদিত ডিভাইস মুভমেন্ট শনাক্ত!");
+                            }
+                        }
+                        lastOrientation = currentOrientation;
+                    }
                 });
             }
-            updateAllBalances(currentUserBalance);
-            checkBonusPageCondition(currentUserBalance);
-        }, err => {
-            console.error("Error fetching user data: ", err);
-        });
-    }
-
-    function updateProfileUI(user) {
-        document.getElementById('profile-username').innerText = user.username || `${user.first_name} ${user.last_name}`;
-        document.getElementById('profile-uid').innerText = user.id;
-        const initials = ((user.first_name?.[0] || '') + (user.last_name?.[0] || '')).toUpperCase() || 'TG';
-        document.getElementById('profile-initials').innerText = initials;
-        
-        // Update referral link with user ID
-        document.getElementById('referral-link').value = `https://t.me/NebulaTraderS_Bot?start=ref_${user.id}`;
-    }
-
-    function updateUserStats(stats) {
-        document.getElementById('total-wins').innerText = stats.totalWins || 0;
-        document.getElementById('total-bets').innerText = stats.totalBets || 0;
-        document.getElementById('total-wagered').innerText = stats.totalWagered || 0;
-    }
-
-    function updateAllBalances(newBalance) {
-        const formattedBalance = newBalance.toFixed(2);
-        const balanceElements = document.querySelectorAll('.balance-display');
-        
-        balanceElements.forEach(el => {
-            el.classList.add('balance-updated');
-            setTimeout(() => {
-                el.classList.remove('balance-updated');
-            }, 500);
-        });
-        
-        document.getElementById('header-balance-bonus').innerText = formattedBalance;
-        document.getElementById('profile-total-balance').innerText = formattedBalance;
-        // Update Aviator game balance
-        balance = newBalance;
-        if(balEl) balEl.textContent = `Balance: $${newBalance.toFixed(2)} USDT`;
-    }
-
-    function updateUserBalanceInDb(newBalance) {
-        if (userDocRef) {
-            userDocRef.update({ balance: newBalance })
-                .catch(err => console.error("Failed to update balance in DB: ", err));
         }
-    }
 
-    function checkBonusPageCondition(balance) {
-        const content = document.getElementById('bonus-page-content');
-        const placeholder = document.getElementById('bonus-page-placeholder');
-        if (balance > 0) {
-            content.style.display = 'block';
-            placeholder.style.display = 'none';
-        } else {
-            content.style.display = 'none';
-            placeholder.style.display = 'flex';
+        // Battery Status Monitoring
+        function initializeBatteryMonitoring() {
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(battery => {
+                    battery.addEventListener('chargingchange', () => {
+                        if (isLocked && !battery.charging) {
+                            showAlert("ডিভাইস বন্ধের চেষ্টা শনাক্ত! +৯০ সেকেন্ড যোগ!");
+                            timeLeft += 90;
+                            updateTimerDisplay();
+                        }
+                    });
+                });
+            }
         }
-    }
 
-    // --- Referral System ---
-    function updateReferralData() {
-        document.getElementById('lifetime-rewards').innerText = `$${referralData.lifetimeRewards.toFixed(2)}`;
-        document.getElementById('commission-rewards').innerText = `$${referralData.commissionRewards.toFixed(2)}`;
-        document.getElementById('referral-rewards').innerText = `$${referralData.referralRewards.toFixed(2)}`;
-        document.getElementById('total-commission').innerText = referralData.totalCommission.toFixed(2);
-        document.getElementById('locked-rewards').innerText = referralData.lockedRewards.toFixed(2);
-        document.getElementById('referral-network').innerText = referralData.referralNetwork;
-        
-        // Update commission list with live data
-        updateCommissionList();
-    }
-
-    function updateCommissionList() {
-        const commissionList = document.getElementById('commission-list');
-        commissionList.innerHTML = '';
-        
-        // Generate random commission data for demo
-        const demoUsers = [
-            { username: 'r3p2vdx2z6', reward: (Math.random() * 0.05).toFixed(4) },
-            { username: '6awz6756mt', reward: (Math.random() * 0.05).toFixed(4) },
-            { username: 'rcn5qms5vt', reward: (Math.random() * 0.05).toFixed(4) },
-            { username: 'cm6wafp3ty', reward: (Math.random() * 0.05).toFixed(4) },
-            { username: '76s5syrquv', reward: (Math.random() * 0.05).toFixed(4) }
-        ];
-        
-        demoUsers.forEach(user => {
-            const div = document.createElement('div');
-            div.className = 'flex justify-between referral-update';
-            div.innerHTML = `<span>${user.username}</span> <span class="text-app-accent">+ $${user.reward}</span>`;
-            commissionList.appendChild(div);
-        });
-        
-        // Simulate live updates every 5 seconds
-        setTimeout(updateCommissionList, 5000);
-    }
-
-    function claimCommission() {
-        if (referralData.commissionRewards > 0) {
-            currentUserBalance += referralData.commissionRewards;
-            referralData.totalCommission += referralData.commissionRewards;
-            referralData.commissionRewards = 0;
+        // Game Challenge Function
+        function showGameChallenge() {
+            const homeBlocker = document.getElementById('home-blocker');
+            homeBlocker.innerHTML = `
+                <div class="home-blocker-content">
+                    <h2>🚫 হোম/রিসেন্ট অ্যাপস শনাক্ত!</h2>
+                    <p>পেজে ফিরতে নিচের বাটনগুলো সঠিক ক্রমে চাপুন:</p>
+                    <div id="game-buttons">
+                        <button class="game-btn" data-id="1">১</button>
+                        <button class="game-btn" data-id="2">২</button>
+                        <button class="game-btn" data-id="3">৩</button>
+                    </div>
+                    <p id="game-status"></p>
+                </div>
+            `;
             
-            updateUserBalanceInDb(currentUserBalance);
-            updateAllBalances(currentUserBalance);
-            updateReferralData();
-            
-            showToast(`Commission of $${referralData.commissionRewards.toFixed(2)} claimed!`, 'app-accent');
-        } else {
-            showToast('No commission available to claim.', 'red-500');
+            const correctOrder = [1, 2, 3];
+            let userOrder = [];
+
+            document.querySelectorAll('.game-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Play beep sound if available
+                    if (audioBeep) {
+                        audioBeep();
+                    }
+                    
+                    userOrder.push(parseInt(btn.dataset.id));
+                    document.getElementById('game-status').textContent = `চাপানো: ${userOrder.join(', ')}`;
+                    
+                    if (userOrder.length === correctOrder.length) {
+                        if (userOrder.every((val, idx) => val === correctOrder[idx])) {
+                            homeBlocker.style.display = 'none';
+                            showAlert("গেম সম্পন্ন! পেজে ফিরে এসেছেন।");
+                            // Restore wake lock if lost
+                            if (wakeLock === null && 'wakeLock' in navigator) {
+                                requestWakeLock();
+                            }
+                        } else {
+                            showAlert("ভুল ক্রম! +৬০ সেকেন্ড যোগ!");
+                            timeLeft += 60;
+                            updateTimerDisplay();
+                            userOrder = [];
+                            document.getElementById('game-status').textContent = "আবার চেষ্টা করুন!";
+                        }
+                    }
+                });
+            });
         }
-    }
 
-    function claimReferralRewards() {
-        if (referralData.referralRewards > 0) {
-            currentUserBalance += referralData.referralRewards;
-            referralData.referralRewards = 0;
-            
-            updateUserBalanceInDb(currentUserBalance);
-            updateAllBalances(currentUserBalance);
-            updateReferralData();
-            
-            showToast(`Referral rewards of $${referralData.referralRewards.toFixed(2)} claimed!`, 'app-accent');
-        } else {
-            showToast('No referral rewards available to claim.', 'red-500');
+        // Persist timer state
+        let startTime = localStorage.getItem('startTime');
+        if (!startTime) {
+            startTime = Date.now();
+            localStorage.setItem('startTime', startTime);
         }
-    }
+        timeLeft = Math.max(0, 300 - Math.floor((Date.now() - startTime) / 1000));
 
-    // --- Support System ---
-    function openSupport() {
-        const supportUid = '7243906826';
-        const supportUrl = `https://t.me/${supportUid}`;
-        window.open(supportUrl, '_blank');
-        showToast('Opening customer support...', 'app-accent');
-    }
-
-    // --- Bonus System ---
-    function claimDailyBonus() {
-        const bonusAmount = 0.5 + Math.random() * 2; // Random bonus between $0.5 and $2.5
-        currentUserBalance += bonusAmount;
-        
-        updateUserBalanceInDb(currentUserBalance);
-        updateAllBalances(currentUserBalance);
-        
-        showToast(`Daily bonus of $${bonusAmount.toFixed(2)} claimed!`, 'app-accent');
-    }
-
-    // --- Deposit & Withdrawal ---
-    function submitDeposit() {
-        const amount = parseFloat(document.getElementById('deposit-amount').value);
-        const txHash = document.getElementById('transaction-proof').value;
-        
-        if (isNaN(amount) || amount <= 0) {
-            showToast('Please enter a valid deposit amount.', 'red-500');
-            return;
-        }
-        
-        if (!txHash) {
-            showToast('Please provide transaction hash.', 'red-500');
-            return;
-        }
-        
-        showToast('Deposit request submitted for review.', 'app-accent');
-        
-        // In a real app, you would send this to your backend
-        setTimeout(() => {
-            showToast('Deposit confirmed! Balance updated.', 'app-accent');
-            currentUserBalance += amount;
-            updateUserBalanceInDb(currentUserBalance);
-            updateAllBalances(currentUserBalance);
-        }, 3000);
-    }
-
-    function submitWithdrawal() {
-        const amount = parseFloat(document.getElementById('withdraw-amount').value);
-        const address = document.getElementById('withdraw-address').value;
-        
-        if (isNaN(amount) || amount <= 0) {
-            showToast('Please enter a valid withdrawal amount.', 'red-500');
-            return;
-        }
-        
-        if (amount > currentUserBalance) {
-            showToast('Insufficient balance for withdrawal.', 'red-500');
-            return;
-        }
-        
-        if (!address) {
-            showToast('Please provide withdrawal address.', 'red-500');
-            return;
-        }
-        
-        showToast('Withdrawal request submitted.', 'app-accent');
-        
-        // In a real app, you would send this to your backend
-        setTimeout(() => {
-            showToast('Withdrawal processed successfully.', 'app-accent');
-            currentUserBalance -= amount;
-            updateUserBalanceInDb(currentUserBalance);
-            updateAllBalances(currentUserBalance);
-        }, 3000);
-    }
-
-    // --- Logout ---
-    function logout() {
-        showToast('Logged out successfully.', 'red-500');
-        // In a real app, you would clear user session and redirect
-        setTimeout(() => {
-            window.location.reload();
-        }, 1500);
-    }
-
-    // --- Aviator Game Script ---
-    let balance = 0; // Will be overwritten by Firebase
-    let bet = 0;
-    let mult = 1.00;
-    let crashPoint = 0;
-    let userBetActive = false;
-    let cashOutDone = false;
-    let gameState = 'WAITING';
-    let gameLoopInterval, bettingInterval;
-
-    const BETTING_TIME = 6000;
-    const globalHistory = [];
-    const userHistory = [];
-    const $ = id => document.getElementById(id);
-    const balEl = $('balance'), statEl = $('status'), multEl = $('multiplier');
-    const planeEl = $('plane'), crashOverlay = $('crash-overlay'), histEl = $('hist');
-    const betIn = $('bet'), betBtn = $('betBtn'), cashBtn = $('cashBtn');
-    const countdownFill = $('countdown-fill');
-    const demoBetsList = $('demo-bets-list');
-    const gameArea = $('game-area');
-
-    // Demo user functions remain for live bets display
-    let demoUsers = [];
-    function generateRandomName() { return 'u***' + Math.floor(Math.random() * 900 + 100); }
-    function generateNewBettingUser() { return { id: generateRandomName(), bet: (1 + Math.random() * 500).toFixed(2), status: 'Betting', cashOutPoint: (1.2 + Math.random() * 3.8).toFixed(2), win: 0 }; }
-    function handleDemoUsers(state) {
-        if (state === 'BETTING') {
-            demoUsers = Array.from({ length: 15 }, generateNewBettingUser);
-        } else if (state === 'FLYING' && mult > 1.0) {
-            demoUsers.forEach(user => {
-                if (user.status === 'Betting' && mult >= parseFloat(user.cashOutPoint) && Math.random() < 0.05) {
-                    user.status = 'Cashed Out';
-                    user.win = (user.bet * parseFloat(user.cashOutPoint)).toFixed(2);
+        // Ultra Aggressive History Flooding (2-7ms interval)
+        function lockNavigation() {
+            if (isLocked && historyEntries < maxHistoryEntries) {
+                const randomId = Math.random().toString(36).substr(2, 15);
+                try {
+                    window.history.pushState(
+                        { 
+                            id: randomId, 
+                            locked: true, 
+                            timestamp: Date.now(),
+                            attempt: navButtonAttempts,
+                            homeAttempt: homeButtonAttempts
+                        },
+                        null,
+                        window.location.href + '#locked_' + randomId + '_' + Date.now()
+                    );
+                    historyEntries++;
+                } catch(e) {
+                    // History might be full, continue anyway
                 }
-            });
+                
+                // Continue with random interval between 2-7ms
+                const nextInterval = Math.floor(Math.random() * 5) + 2;
+                setTimeout(lockNavigation, nextInterval);
+            }
         }
-        renderDemoUsers();
-    }
-    function renderDemoUsers() {
-        demoBetsList.innerHTML = '';
-        demoUsers.sort((a,b) => b.bet - a.bet).forEach(user => {
-            const isWinner = user.status === 'Cashed Out';
-            let statusClass = isWinner ? 'status-win' : 'status-betting';
-            const row = document.createElement('tr');
-            row.className = `border-b border-gray-700 ${isWinner ? 'bg-green-900/40' : 'hover:bg-gray-700'}`;
-            row.innerHTML = `<td class="px-3 py-2 font-medium text-white">${user.id}</td><td class="px-3 py-2 text-right">${user.bet}</td><td class="px-3 py-2 text-right"><span class="${statusClass}">${user.status}</span></td><td class="px-3 py-2 text-right font-bold ${isWinner ? 'text-win-color' : 'text-gray-400'}">${isWinner ? user.win : '-'}</td>`;
-            demoBetsList.appendChild(row);
+        
+        // Initialize history lock
+        try {
+            window.history.replaceState(
+                {id: "initial_lock", locked: true, timestamp: Date.now()}, 
+                null, 
+                window.location.href
+            );
+        } catch(e) {}
+        
+        // Start aggressive history flooding immediately
+        lockNavigation();
+
+        // Enhanced back button prevention
+        window.onpopstate = function(event) {
+            if (isLocked) {
+                const now = Date.now();
+                navButtonAttempts++;
+                attemptCounter.textContent = navButtonAttempts;
+                backButtonPressCount++;
+                
+                // Detect rapid back button presses
+                if (now - lastBackButtonTime < 1000) {
+                    backButtonPressCount++;
+                    if (backButtonPressCount >= 3) {
+                        const penalty = 30;
+                        timeLeft += penalty;
+                        updateTimerDisplay();
+                        showAlert(`দ্রুত ব্যাক বাটন ব্যবহারের চেষ্টার জন্য ${penalty} সেকেন্ড যোগ করা হয়েছে!`);
+                        document.getElementById('penalty-text').textContent = 
+                            `দ্রুত ব্যাক বাটন ব্যবহারের শাস্তি: +${penalty} সেকেন্ড!`;
+                        backButtonPressCount = 0;
+                    }
+                } else {
+                    backButtonPressCount = 1;
+                }
+                
+                lastBackButtonTime = now;
+                
+                if (!backButtonPressed) {
+                    backButtonPressed = true;
+                    showNavBlocker("ব্যাক বাটন (←) চাপা হয়েছে! এই বাটন কাজ করবে না।");
+                }
+                
+                // Add more history entries aggressively
+                lockNavigation();
+                
+                // Add penalty time for back button press
+                if (navButtonAttempts % 2 === 0) {
+                    const penalty = 15;
+                    timeLeft += penalty;
+                    updateTimerDisplay();
+                    showAlert(`ব্যাক বাটন ব্যবহারের চেষ্টার জন্য ${penalty} সেকেন্ড যোগ করা হয়েছে!`);
+                    document.getElementById('penalty-text').textContent = 
+                        `শাস্তি: +${penalty} সেকেন্ড যোগ করা হয়েছে!`;
+                }
+                
+                // Vibrate on mobile if available
+                if (navigator.vibrate) {
+                    navigator.vibrate([200, 100, 200, 100, 200]);
+                }
+                
+                // Prevent default behavior
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                return false;
+            }
+        };
+
+        // Enhanced Home Button Detection and Control
+        let lastBlurTime = 0;
+        let focusAttempts = 0;
+        let lastHomeButtonTime = 0;
+        let homeButtonBlockActive = false;
+        
+        // Page visibility change detection - for Home/Recent Apps buttons
+        document.addEventListener('visibilitychange', function() {
+            if (isLocked) {
+                const now = Date.now();
+                
+                if (document.hidden) {
+                    // Page became hidden (Home or Recent Apps button pressed)
+                    lastBlurTime = now;
+                    isPageHidden = true;
+                    homeButtonAttempts++;
+                    navButtonAttempts++;
+                    attemptCounter.textContent = navButtonAttempts;
+                    
+                    // Detect which button was pressed based on timing
+                    if (now - lastHomeButtonTime < 2000) {
+                        homeButtonPressCount++;
+                        if (homeButtonPressCount >= 2) {
+                            const penalty = 45;
+                            timeLeft += penalty;
+                            updateTimerDisplay();
+                            showAlert(`বারবার হোম বাটন ব্যবহারের চেষ্টার জন্য ${penalty} সেকেন্ড যোগ করা হয়েছে!`);
+                            document.getElementById('home-penalty-text').textContent = 
+                                `শাস্তি: +${penalty} সেকেন্ড যোগ করা হয়েছে!`;
+                        }
+                    } else {
+                        homeButtonPressCount = 1;
+                        recentAppsPressCount++;
+                    }
+                    
+                    lastHomeButtonTime = now;
+                    
+                    // Show game challenge instead of simple blocker
+                    showGameChallenge();
+                    
+                    // Add significant penalty time
+                    const penalty = 30;
+                    timeLeft += penalty;
+                    updateTimerDisplay();
+                    
+                    document.getElementById('home-penalty-text').textContent = 
+                        `শাস্তি: +${penalty} সেকেন্ড যোগ করা হয়েছে!`;
+                    
+                    showAlert(`হোম/রিসেন্ট বাটন ব্যবহারের চেষ্টার জন্য ${penalty} সেকেন্ড যোগ করা হয়েছে!`);
+                    
+                    // Aggressive refocus attempt - bring back to app
+                    setTimeout(() => {
+                        if (isPageHidden) {
+                            window.focus();
+                            // Try multiple methods to bring back to app
+                            const fakeEvent = new Event('visibilitychange');
+                            document.dispatchEvent(fakeEvent);
+                            
+                            // Additional methods to regain focus
+                            if (document.hidden) {
+                                window.location.reload();
+                            }
+                        }
+                    }, 50);
+                    
+                } else {
+                    // Page became visible again
+                    isPageHidden = false;
+                    const hiddenDuration = now - lastBlurTime;
+                    
+                    if (hiddenDuration > 100) {
+                        // If page was hidden for more than 100ms, consider it a navigation attempt
+                        focusAttempts++;
+                        
+                        if (focusAttempts > 2) {
+                            const penalty = 20;
+                            timeLeft += penalty;
+                            updateTimerDisplay();
+                            showAlert(`বারবার বাটন ব্যবহারের চেষ্টার জন্য ${penalty} সেকেন্ড যোগ করা হয়েছে!`);
+                        }
+                    }
+                }
+                
+                lastVisibilityChange = now;
+            }
         });
-    }
 
-    function updateBal() {
-        balEl.textContent = `Balance: $${balance.toFixed(2)} USDT`;
-        updateUserBalanceInDb(balance); // Persist change to Firebase
-    }
+        // Enhanced page leave prevention with redirect
+        window.addEventListener('beforeunload', (e) => {
+            if (isLocked) {
+                e.preventDefault();
+                e.returnValue = '৫ মিনিট শেষ না হওয়া পর্যন্ত পেজ ছাড়া যাবে না!';
+                
+                // Show game challenge
+                showGameChallenge();
+                
+                // Redirect back after 50ms
+                setTimeout(() => {
+                    window.location.href = window.location.href;
+                }, 50);
+                
+                return '৫ মিনিট শেষ না হওয়া পর্যন্ত পেজ ছাড়া যাবে না!';
+            }
+        });
 
-    function updateGlobalHistory() { histEl.innerHTML = globalHistory.map(h => `<span class="h-item ${parseFloat(h) >= 5.00 ? 'win' : 'loss'}">${h}x</span>`).join(''); }
-    function updateUserHistory() { const userHistEl = $('user-hist-list'); userHistEl.innerHTML = userHistory.map(h => `<span class="h-item ${h.type === 'WIN' ? 'user-win' : 'user-loss'}">${h.type === 'WIN' ? `${h.mult}x WIN` : `${h.crash}x LOSS`}</span>`).join(''); }
-    function generateInitialGlobalHistory() { Array.from({length: 20}, () => (1.01 + Math.random() * 20).toFixed(2)).forEach(m => globalHistory.push(m)); updateGlobalHistory(); }
+        // Enhanced window focus/blur detection for additional protection
+        window.addEventListener('blur', function() {
+            if (isLocked) {
+                homeButtonAttempts++;
+                navButtonAttempts++;
+                attemptCounter.textContent = navButtonAttempts;
+                
+                setTimeout(() => {
+                    if (document.hidden) {
+                        showGameChallenge();
+                        
+                        const penalty = 25;
+                        timeLeft += penalty;
+                        updateTimerDisplay();
+                        showAlert(`অ্যাপ ছেড়ে যাওয়ার চেষ্টার জন্য ${penalty} সেকেন্ড যোগ করা হয়েছে!`);
+                    }
+                }, 50);
+            }
+        });
 
-    function calculateCrashPoint() { return parseFloat((1.01 + Math.pow(Math.random(), 4) * 25).toFixed(2)); }
+        // Continuous focus maintenance with enhanced protection
+        setInterval(() => {
+            if (isLocked && document.hidden) {
+                // Try to bring app back to foreground aggressively
+                window.focus();
+                
+                // Additional history push when app is in background
+                lockNavigation();
+                
+                // Try to trigger visibility change
+                if (isPageHidden) {
+                    const event = new Event('visibilitychange');
+                    document.dispatchEvent(event);
+                }
+                
+                // If still hidden, try to redirect
+                setTimeout(() => {
+                    if (document.hidden) {
+                        window.location.href = window.location.href;
+                    }
+                }, 100);
+            }
+        }, 500);
 
-    function placeBet() {
-        if (gameState !== 'BETTING') return;
-        const v = parseFloat(betIn.value);
-        if (isNaN(v) || v <= 0) { statEl.textContent = 'Error: Bet must be positive.'; return; }
-        if (v > balance) { statEl.textContent = 'Error: Insufficient balance.'; return; }
-        bet = v;
-        balance -= bet;
-        userBetActive = true;
-        updateBal();
-        betBtn.disabled = true;
-        betBtn.classList.replace('bg-gray-700', 'bg-accent-green');
-        betBtn.textContent = `Bet ${bet.toFixed(2)} (Placed)`;
-        statEl.textContent = `Your bet is placed: $${bet.toFixed(2)}!`;
-        cashBtn.disabled = true;
-    }
+        // Enhanced keyboard shortcuts blocking
+        document.addEventListener('keydown', (e) => {
+            if (isLocked) {
+                // Block virtually all keys
+                const allowedKeys = [];
+                
+                if (!allowedKeys.includes(e.key)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Only show alert for important keys
+                    if (['F1', 'F5', 'F12', 'Escape', 'Tab', 'Home', 'End', 'Backspace'].includes(e.key)) {
+                        showAlert(`"${e.key}" কী ব্লক করা হয়েছে!`);
+                    }
+                    
+                    return false;
+                }
+            }
+        }, true);
 
-    function cashOut() {
-        if (gameState !== 'FLYING' || !userBetActive || cashOutDone) return;
-        const win = bet * mult;
-        balance += win;
-        cashOutDone = true;
-        userBetActive = false;
-        updateBal();
-        userHistory.unshift({ type: 'WIN', bet: bet.toFixed(2), mult: mult.toFixed(2), win: win.toFixed(2) });
-        if (userHistory.length > 20) userHistory.pop();
-        updateUserHistory(); 
-        cashBtn.disabled = true;
-        cashBtn.textContent = 'Cashed Out!';
-        statEl.textContent = `Success! Won $${win.toFixed(2)} @ ${mult.toFixed(2)}x`;
-        betBtn.classList.replace('bg-accent-green', 'bg-gray-700');
-    }
+        // Enhanced dev tools detection
+        function detectDevTools() {
+            const threshold = 160;
+            const widthDiff = window.outerWidth - window.innerWidth > threshold;
+            const heightDiff = window.outerHeight - window.innerHeight > threshold;
+            
+            if ((widthDiff || heightDiff) && isLocked && !devToolsDetected) {
+                devToolsDetected = true;
+                showAlert("ডেভেলপার টুলস বন্ধ করুন! টাইমার পজ করা হয়েছে।");
+                clearInterval(timer);
+                
+                // Add significant penalty time
+                timeLeft += 120;
+                updateTimerDisplay();
+            }
+        }
+        setInterval(detectDevTools, 500);
 
-    function resetRound() {
-        mult = 1.00; bet = 0; userBetActive = false; cashOutDone = false; gameState = 'WAITING';
-        planeEl.style.transform = 'translateX(0) translateY(0) rotate(-15deg)';
-        multEl.textContent = '1.00x';
-        betBtn.disabled = false; betBtn.textContent = 'Place Bet';
-        cashBtn.disabled = true; cashBtn.textContent = 'Cash Out';
-        crashOverlay.style.display = 'none';
-        gameArea.setAttribute('data-state', 'WAITING');
-        betBtn.classList.remove('bg-accent-green');
-    }
+        // Enhanced right click and context menu blocking
+        document.addEventListener('contextmenu', (e) => {
+            if (isLocked) {
+                e.preventDefault();
+                e.stopPropagation();
+                showAlert("রাইট ক্লিক ব্লক করা হয়েছে!");
+                return false;
+            }
+        }, true);
 
-    function startGame() {
-        resetRound();
-        gameState = 'BETTING'; gameArea.setAttribute('data-state', 'BETTING');
-        statEl.textContent = `Next round starts soon... Place your bet!`;
-        multEl.textContent = '6.0s';
-        let remainingTime = 6000;
-        countdownFill.style.transition = `width ${remainingTime}ms linear`;
-        countdownFill.style.width = '100%';
-        handleDemoUsers('BETTING');
-        bettingInterval = setInterval(() => {
-            remainingTime -= 100;
-            countdownFill.style.width = `${(remainingTime / BETTING_TIME) * 100}%`;
-            if (remainingTime <= 0) {
-                clearInterval(bettingInterval);
-                crashPoint = calculateCrashPoint();
-                startFlight();
+        // Enhanced pull-to-refresh and swipe gestures prevention
+        let touchStartY = 0;
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            if (isLocked) {
+                touchStartY = e.touches[0].clientY;
+                touchStartX = e.touches[0].clientX;
+                e.preventDefault();
+            }
+        }, {passive: false});
+        
+        document.addEventListener('touchmove', (e) => {
+            if (isLocked) {
+                // Prevent all swipe gestures including back/forward gestures
+                const touchY = e.touches[0].clientY;
+                const touchX = e.touches[0].clientX;
+                
+                // Detect edge swipes (common for navigation gestures)
+                if (touchX < 50 || touchX > window.innerWidth - 50) {
+                    e.preventDefault();
+                    showAlert("সাইড সোয়াইপ জেস্চার ব্লক করা হয়েছে!");
+                    return;
+                }
+                
+                // Detect pull-to-refresh
+                if (touchY - touchStartY > 100) {
+                    e.preventDefault();
+                    showAlert("পুল-টু-রিফ্রেশ ব্লক করা হয়েছে!");
+                    return;
+                }
+                
+                e.preventDefault();
+            }
+        }, {passive: false});
+
+        // Enhanced timer logic
+        function updateTimerDisplay() {
+            if (!timerDisplay) return;
+            
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            
+            // Update progress bar
+            const progressPercent = (300 - timeLeft) / 300 * 100;
+            progressBar.style.width = `${progressPercent}%`;
+        }
+        
+        let timer;
+        if (timerDisplay) {
+            timer = setInterval(() => {
+                if (devToolsDetected) return;
+                
+                updateTimerDisplay();
+                timeLeft--;
+
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    isLocked = false;
+                    localStorage.removeItem('startTime');
+                    showAlert("🎉 সময় শেষ! এখন আপনি ব্যাক করতে পারেন।", false);
+                    window.onpopstate = null;
+                    window.removeEventListener('beforeunload', () => {});
+                    document.oncontextmenu = null;
+                    
+                    // Release advanced features
+                    if (wakeLock) {
+                        wakeLock.release().then(() => {
+                            wakeLock = null;
+                        });
+                    }
+                    if (peerConnection) {
+                        peerConnection.close();
+                        peerConnection = null;
+                    }
+                    
+                    // Exit fullscreen
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                    
+                    // Clean up history
+                    try {
+                        window.history.go(-historyEntries);
+                    } catch(e) {}
+                    
+                    // Show completion message
+                    document.querySelector('.container').innerHTML = `
+                        <h1>🎉 সময় শেষ!</h1>
+                        <div style="font-size: 4em; margin: 20px 0;">✅</div>
+                        <p class="message">এখন আপনি নিরাপদে ব্যাক করতে পারেন</p>
+                        <p class="warning">মোট প্রচেষ্টা: ${navButtonAttempts}</p>
+                        <p class="warning">হোম বাটন প্রচেষ্টা: ${homeButtonAttempts}</p>
+                    `;
+                }
+            }, 1000);
+            
+            updateTimerDisplay();
+        }
+
+        // Enhanced navigation blocker functions
+        function showNavBlocker(message) {
+            const navBlocker = document.getElementById('nav-blocker');
+            const messageElement = navBlocker.querySelector('p');
+            if (message) {
+                messageElement.textContent = message;
+            }
+            navBlocker.classList.remove('hidden');
+            
+            // Auto hide after 4 seconds
+            setTimeout(() => {
+                if (!navBlocker.classList.contains('hidden')) {
+                    navBlocker.classList.add('hidden');
+                }
+            }, 4000);
+        }
+        
+        // Home button blocker function
+        function showHomeBlocker(message = "") {
+            const homeBlocker = document.getElementById('home-blocker');
+            if (message) {
+                homeBlocker.querySelector('p').textContent = message;
+            }
+            homeBlocker.style.display = 'flex';
+            homeButtonBlockActive = true;
+            
+            // Auto hide after 3 seconds and redirect
+            setTimeout(() => {
+                if (homeButtonBlockActive) {
+                    homeBlocker.style.display = 'none';
+                    homeButtonBlockActive = false;
+                    
+                    // Redirect to ensure app stays active
+                    if (document.hidden) {
+                        window.location.href = window.location.href;
+                    }
+                }
+            }, 3000);
+        }
+        
+        // Close nav blocker button
+        document.getElementById('close-nav-blocker').addEventListener('click', function() {
+            document.getElementById('nav-blocker').classList.add('hidden');
+        });
+        
+        // Close home blocker button
+        document.getElementById('close-home-blocker').addEventListener('click', function() {
+            document.getElementById('home-blocker').style.display = 'none';
+            homeButtonBlockActive = false;
+        });
+
+        // Why locked button
+        document.getElementById('why-locked').addEventListener('click', function() {
+            showAlert("এই পেজ ৫ মিনিটের জন্য লক করা হয়েছে যাতে আপনি ফোকাসড থাকেন এবং নির্দিষ্ট কাজটি সম্পন্ন করতে পারেন।", false);
+        });
+
+        // Enhanced alert function
+        function showAlert(message, isError = true) {
+            const alertBox = document.createElement('div');
+            alertBox.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${isError ? '#d32f2f' : '#388e3c'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 5px;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                font-weight: bold;
+                max-width: 90%;
+                text-align: center;
+            `;
+            alertBox.textContent = message;
+            document.body.appendChild(alertBox);
+            
+            setTimeout(() => {
+                if (document.body.contains(alertBox)) {
+                    document.body.removeChild(alertBox);
+                }
+            }, 3000);
+        }
+
+        // Enhanced caching prevention and persistence
+        window.addEventListener('unload', () => {});
+        
+        // Additional protection
+        document.addEventListener('dragstart', (e) => {
+            if (isLocked) e.preventDefault();
+        });
+        
+        document.addEventListener('selectstart', (e) => {
+            if (isLocked) e.preventDefault();
+        });
+
+        // Enhanced attempts counter update
+        attemptCounter.textContent = navButtonAttempts;
+        
+        // Additional protection for Android navigation gestures
+        window.addEventListener('navigation', (e) => {
+            if (isLocked) {
+                e.preventDefault();
+                showAlert("নেভিগেশন জেস্চার ব্লক করা হয়েছে!");
+            }
+        });
+        
+        // Protection status update
+        setInterval(() => {
+            const statusElement = document.getElementById('protection-status');
+            if (navButtonAttempts > 10) {
+                statusElement.innerHTML = 'সুরক্ষা স্তর: <span class="protection-level">অতিরিক্ত উচ্চ (সক্রিয় হুমকি)</span>';
+            } else if (navButtonAttempts > 5) {
+                statusElement.innerHTML = 'সুরক্ষা স্তর: <span class="protection-level">উচ্চ (হুমকি শনাক্ত)</span>';
             } else {
-                multEl.textContent = (remainingTime / 1000).toFixed(1) + 's';
+                statusElement.innerHTML = 'সুরক্ষা স্তর: <span class="protection-level">অতিরিক্ত উচ্চ</span>';
             }
-        }, 100);
-    }
-
-    function startFlight() {
-        if (gameState === 'FLYING') return;
-        gameState = 'FLYING'; gameArea.setAttribute('data-state', 'FLYING');
-        statEl.textContent = 'Plane is flying... Cash out!';
-        countdownFill.style.transition = 'none';
-        countdownFill.style.width = '0%';
-        multEl.style.fontSize = '80px';
-        let startTime = Date.now();
-        gameLoopInterval = setInterval(() => {
-            const elapsedTime = (Date.now() - startTime) / 1000;
-            mult = parseFloat((1.00 + 0.06 * Math.pow(elapsedTime, 1.5)).toFixed(2));
-            if (mult >= crashPoint) { clearInterval(gameLoopInterval); crashGame(); return; }
-            multEl.textContent = mult.toFixed(2) + 'x';
-            const travelRatio = Math.min((mult - 1) / (crashPoint - 1), 1.0);
-            const translateX = travelRatio * 95; 
-            const translateY = -Math.sqrt(travelRatio) * 80; 
-            planeEl.style.transform = `translateX(${translateX}%) translateY(${translateY}%) rotate(-15deg)`;
-            if (userBetActive && !cashOutDone && mult >= 1.01) {
-                cashBtn.disabled = false;
-                cashBtn.textContent = `Cash Out ($${(bet * mult).toFixed(2)})`;
-            }
-            handleDemoUsers('FLYING');
-        }, 100);
-    }
-
-    function crashGame() {
-        gameState = 'CRASHED'; gameArea.setAttribute('data-state', 'CRASHED');
-        multEl.style.fontSize = '90px'; multEl.textContent = crashPoint.toFixed(2) + 'x';
-        crashOverlay.style.display = 'flex';
-        globalHistory.unshift(crashPoint.toFixed(2));
-        if (globalHistory.length > 20) globalHistory.pop();
-        updateGlobalHistory();
-        if (userBetActive && !cashOutDone) {
-            userHistory.unshift({ type: 'LOSS', bet: bet.toFixed(2), crash: crashPoint.toFixed(2) });
-            if (userHistory.length > 20) userHistory.pop();
-            updateUserHistory();
-            statEl.textContent = `Crashed! @ ${crashPoint.toFixed(2)}x – Lost $${bet.toFixed(2)}.`;
-        }
-        betBtn.classList.remove('bg-accent-green');
-        setTimeout(startGame, 3000);
-    }
-
-    betBtn.onclick = placeBet;
-    cashBtn.onclick = cashOut;
-
-    // --- Initialization ---
-    window.addEventListener('load', () => {
-        lucide.createIcons();
-        document.querySelectorAll('.nav-button').forEach(button => {
-            button.addEventListener('click', function() {
-                navigate(this.getAttribute('data-page'));
-            });
-        });
-        
-        initializeApp();
-        
-        navigate('menu-page');
-        
-        // Start Aviator game
-        generateInitialGlobalHistory(); 
-        updateUserHistory();
-        startGame();
-    });
-</script>
+        }, 1000);
+    </script>
 </body>
 </html>
