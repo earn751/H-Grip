@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <title>উন্নত নেভিগেশন ব্লক সিস্টেম</title>
+    <title>টেলিগ্রাম লক সিস্টেম</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, private">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
             margin: 0;
@@ -15,7 +16,7 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             text-align: center;
             padding: 20px;
             margin: 0;
@@ -25,8 +26,8 @@
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
-            background: linear-gradient(135deg, #8B0000, #B22222, #DC143C);
-            color: white;
+            background: var(--tg-theme-bg-color, linear-gradient(135deg, #8B0000, #B22222, #DC143C));
+            color: var(--tg-theme-text-color, white);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -36,25 +37,26 @@
             width: 100%;
             top: 0;
             left: 0;
+            transition: all 0.3s ease;
         }
         .container {
-            background: rgba(0, 0, 0, 0.9);
-            padding: 40px;
+            background: var(--tg-theme-secondary-bg-color, rgba(0, 0, 0, 0.9));
+            padding: 30px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-            max-width: 500px;
+            max-width: 400px;
             width: 90%;
-            border: 3px solid #ff4444;
+            border: 3px solid var(--tg-theme-button-color, #ff4444);
         }
         h1 {
-            color: #fff;
+            color: var(--tg-theme-text-color, #fff);
             margin-bottom: 20px;
-            font-size: 28px;
+            font-size: 24px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
         #timer {
-            font-size: 3em;
-            color: #ffcc00;
+            font-size: 2.5em;
+            color: var(--tg-theme-button-color, #ffcc00);
             font-weight: bold;
             margin: 20px 0;
             text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
@@ -62,8 +64,8 @@
         }
         .progress-container {
             width: 100%;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.2);
+            height: 15px;
+            background: var(--tg-theme-hint-color, rgba(255, 255, 255, 0.2));
             border-radius: 10px;
             margin: 20px 0;
             overflow: hidden;
@@ -71,28 +73,28 @@
         .progress-bar {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #ff416c, #ff4b2b);
+            background: linear-gradient(90deg, var(--tg-theme-button-color, #ff416c), var(--tg-theme-button-color, #ff4b2b));
             border-radius: 10px;
             transition: width 1s linear;
         }
         .message {
-            margin-top: 20px;
-            font-size: 16px;
-            color: #ddd;
+            margin-top: 15px;
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #ddd);
         }
         .warning {
-            color: #ff9999;
-            font-size: 14px;
-            margin-top: 10px;
-            line-height: 1.5;
+            color: var(--tg-theme-destructive-text-color, #ff9999);
+            font-size: 12px;
+            margin-top: 8px;
+            line-height: 1.4;
         }
         .navigation-blocked {
-            color: #ff5555;
+            color: var(--tg-theme-button-color, #ff5555);
             font-weight: bold;
-            margin-top: 15px;
-            font-size: 18px;
-            background: rgba(255, 0, 0, 0.2);
-            padding: 10px;
+            margin-top: 12px;
+            font-size: 16px;
+            background: var(--tg-theme-secondary-bg-color, rgba(255, 0, 0, 0.2));
+            padding: 8px;
             border-radius: 5px;
         }
         .hidden { 
@@ -106,14 +108,14 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.98);
+            background: var(--tg-theme-bg-color, rgba(0, 0, 0, 0.98));
             z-index: 9999;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            color: white;
-            font-size: 24px;
+            color: var(--tg-theme-text-color, white);
+            font-size: 20px;
             text-align: center;
             padding: 20px;
         }
@@ -121,20 +123,20 @@
         .nav-buttons {
             display: flex;
             justify-content: center;
-            margin: 20px 0;
+            margin: 15px 0;
         }
         
         .nav-button {
-            width: 70px;
-            height: 70px;
-            margin: 0 15px;
-            background: rgba(255, 0, 0, 0.4);
-            border: 3px solid #ff5555;
+            width: 60px;
+            height: 60px;
+            margin: 0 10px;
+            background: var(--tg-theme-secondary-bg-color, rgba(255, 0, 0, 0.4));
+            border: 3px solid var(--tg-theme-button-color, #ff5555);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 35px;
+            font-size: 28px;
             animation: pulse 1.5s infinite;
         }
         
@@ -145,21 +147,21 @@
         }
         
         #close-nav-blocker {
-            margin-top: 30px;
-            padding: 12px 25px;
-            background: #ff5555;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: var(--tg-theme-button-color, #ff5555);
             border: none;
             border-radius: 5px;
-            color: white;
-            font-size: 18px;
+            color: var(--tg-theme-button-text-color, white);
+            font-size: 16px;
             cursor: pointer;
             font-weight: bold;
         }
         
         .penalty-notice {
-            color: #ff9999;
-            margin-top: 15px;
-            font-size: 16px;
+            color: var(--tg-theme-destructive-text-color, #ff9999);
+            margin-top: 12px;
+            font-size: 14px;
         }
         
         /* Prevent text selection */
@@ -181,11 +183,11 @@
             position: fixed;
             top: 10px;
             right: 10px;
-            background: rgba(255, 0, 0, 0.8);
-            color: white;
+            background: var(--tg-theme-button-color, rgba(255, 0, 0, 0.8));
+            color: var(--tg-theme-button-text-color, white);
             padding: 5px 10px;
             border-radius: 5px;
-            font-size: 14px;
+            font-size: 12px;
             z-index: 1000;
         }
         
@@ -193,16 +195,16 @@
             position: fixed;
             top: 10px;
             left: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
+            background: var(--tg-theme-secondary-bg-color, rgba(0, 0, 0, 0.7));
+            color: var(--tg-theme-text-color, white);
             padding: 5px 10px;
             border-radius: 5px;
-            font-size: 12px;
+            font-size: 11px;
             z-index: 1000;
         }
         
         .protection-level {
-            color: #ffcc00;
+            color: var(--tg-theme-button-color, #ffcc00);
             font-weight: bold;
         }
         
@@ -213,14 +215,14 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
+            background: var(--tg-theme-bg-color, rgba(0, 0, 0, 0.95));
             z-index: 10000;
             display: none;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            color: white;
-            font-size: 24px;
+            color: var(--tg-theme-text-color, white);
+            font-size: 20px;
             text-align: center;
             padding: 20px;
             animation: shake 0.5s ease-in-out;
@@ -233,63 +235,182 @@
         }
         
         .home-blocker-content {
-            background: rgba(255, 0, 0, 0.2);
-            padding: 30px;
+            background: var(--tg-theme-secondary-bg-color, rgba(255, 0, 0, 0.2));
+            padding: 25px;
             border-radius: 15px;
-            border: 3px solid #ff4444;
+            border: 3px solid var(--tg-theme-button-color, #ff4444);
             max-width: 90%;
         }
         
         #close-home-blocker {
-            margin-top: 20px;
-            padding: 12px 25px;
-            background: #ff5555;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: var(--tg-theme-button-color, #ff5555);
             border: none;
             border-radius: 5px;
-            color: white;
-            font-size: 18px;
+            color: var(--tg-theme-button-text-color, white);
+            font-size: 16px;
             cursor: pointer;
             font-weight: bold;
         }
         
-        /* Game Challenge Styles */
-        .game-btn {
-            padding: 15px 25px;
-            margin: 10px;
-            background: #ff5555;
+        /* Emergency PIN Styles */
+        #emergency-pin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--tg-theme-bg-color, rgba(0, 0, 0, 0.95));
+            z-index: 10001;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: var(--tg-theme-text-color, white);
+            font-size: 20px;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .pin-container {
+            background: var(--tg-theme-secondary-bg-color, rgba(0, 0, 0, 0.8));
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid var(--tg-theme-button-color, #4CAF50);
+            max-width: 90%;
+            width: 350px;
+        }
+        
+        .pin-input {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 20px;
+            text-align: center;
+            background: var(--tg-theme-bg-color, #fff);
+            border: 2px solid var(--tg-theme-button-color, #4CAF50);
+            border-radius: 8px;
+            color: var(--tg-theme-text-color, #000);
+        }
+        
+        .pin-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .pin-btn {
+            padding: 15px;
+            font-size: 18px;
+            background: var(--tg-theme-button-color, #4CAF50);
             border: none;
             border-radius: 8px;
-            color: white;
-            font-size: 20px;
+            color: var(--tg-theme-button-text-color, white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .pin-btn:hover {
+            background: var(--tg-theme-button-color, #45a049);
+            transform: scale(1.05);
+        }
+        
+        .pin-clear {
+            background: var(--tg-theme-destructive-text-color, #ff5555);
+        }
+        
+        .pin-submit {
+            background: var(--tg-theme-button-color, #2196F3);
+        }
+        
+        /* Game Challenge Styles */
+        .game-btn {
+            padding: 12px 20px;
+            margin: 8px;
+            background: var(--tg-theme-button-color, #ff5555);
+            border: none;
+            border-radius: 8px;
+            color: var(--tg-theme-button-text-color, white);
+            font-size: 18px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
         
         .game-btn:hover {
-            background: #ff3333;
+            background: var(--tg-theme-button-color, #ff3333);
             transform: scale(1.1);
         }
         
         #game-status {
-            margin-top: 15px;
-            font-size: 18px;
-            color: #ffcc00;
+            margin-top: 12px;
+            font-size: 16px;
+            color: var(--tg-theme-button-color, #ffcc00);
         }
         
         /* Why Locked Button */
         #why-locked {
-            margin-top: 20px;
-            padding: 10px 20px;
+            margin-top: 15px;
+            padding: 8px 16px;
             background: transparent;
-            border: 2px solid #ffcc00;
+            border: 2px solid var(--tg-theme-button-color, #ffcc00);
             border-radius: 5px;
-            color: #ffcc00;
-            font-size: 14px;
+            color: var(--tg-theme-button-color, #ffcc00);
+            font-size: 12px;
             cursor: pointer;
         }
         
-        #why-locked:hover {
-            background: rgba(255, 204, 0, 0.2);
+        /* Emergency Access Button */
+        #emergency-access {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: transparent;
+            border: 1px solid var(--tg-theme-button-color, #4CAF50);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: var(--tg-theme-button-color, #4CAF50);
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Telegram Theme Adaptation */
+        :root {
+            --tg-theme-bg-color: #ffffff;
+            --tg-theme-text-color: #000000;
+            --tg-theme-hint-color: #999999;
+            --tg-theme-link-color: #2481cc;
+            --tg-theme-button-color: #2481cc;
+            --tg-theme-button-text-color: #ffffff;
+            --tg-theme-secondary-bg-color: #f4f4f5;
+            --tg-theme-header-bg-color: #ffffff;
+            --tg-theme-accent-text-color: #2481cc;
+            --tg-theme-section-bg-color: #ffffff;
+            --tg-theme-section-header-text-color: #2481cc;
+            --tg-theme-subtitle-text-color: #999999;
+            --tg-theme-destructive-text-color: #ff3b30;
+        }
+
+        .dark-mode {
+            --tg-theme-bg-color: #000000;
+            --tg-theme-text-color: #ffffff;
+            --tg-theme-hint-color: #666666;
+            --tg-theme-link-color: #5e9be2;
+            --tg-theme-button-color: #5e9be2;
+            --tg-theme-button-text-color: #ffffff;
+            --tg-theme-secondary-bg-color: #1c1c1d;
+            --tg-theme-header-bg-color: #000000;
+            --tg-theme-accent-text-color: #5e9be2;
+            --tg-theme-section-bg-color: #000000;
+            --tg-theme-section-header-text-color: #5e9be2;
+            --tg-theme-subtitle-text-color: #666666;
+            --tg-theme-destructive-text-color: #ff453a;
         }
     </style>
 </head>
@@ -309,6 +430,8 @@
         সুরক্ষা স্তর: <span class="protection-level">অতিরিক্ত উচ্চ</span>
     </div>
     
+    <button id="emergency-access" title="ইমার্জেন্সি এক্সেস">🔓</button>
+    
     <div id="nav-blocker" class="hidden">
         <h2>🚫 নেভিগেশন বাটন ব্লক করা হয়েছে!</h2>
         <div class="nav-buttons">
@@ -326,12 +449,37 @@
     <div id="home-blocker">
         <div class="home-blocker-content">
             <h2>🚫 হোম বাটন ব্লক করা হয়েছে!</h2>
-            <div class="nav-button" style="margin: 20px auto;">◯</div>
+            <div class="nav-button" style="margin: 15px auto;">◯</div>
             <p><strong>হোম বাটন সম্পূর্ণ ব্লক করা হয়েছে</strong></p>
             <p>৫ মিনিট শেষ না হওয়া পর্যন্ত হোম বাটন কাজ করবে না</p>
             <p class="penalty-notice" id="home-penalty-text"></p>
             <p class="warning">আপনি অ্যাপ থেকে বের হতে পারবেন না</p>
             <button id="close-home-blocker">ঠিক আছে</button>
+        </div>
+    </div>
+    
+    <!-- Emergency PIN Overlay -->
+    <div id="emergency-pin-overlay">
+        <div class="pin-container">
+            <h2>🔓 ইমার্জেন্সি এক্সেস</h2>
+            <p>ইমার্জেন্সি পিন দিন:</p>
+            <input type="password" id="pin-input" class="pin-input" placeholder="পিন লিখুন" maxlength="11" readonly>
+            <div class="pin-buttons">
+                <button class="pin-btn" data-number="1">1</button>
+                <button class="pin-btn" data-number="2">2</button>
+                <button class="pin-btn" data-number="3">3</button>
+                <button class="pin-btn" data-number="4">4</button>
+                <button class="pin-btn" data-number="5">5</button>
+                <button class="pin-btn" data-number="6">6</button>
+                <button class="pin-btn" data-number="7">7</button>
+                <button class="pin-btn" data-number="8">8</button>
+                <button class="pin-btn" data-number="9">9</button>
+                <button class="pin-btn pin-clear" id="pin-clear">C</button>
+                <button class="pin-btn" data-number="0">0</button>
+                <button class="pin-btn pin-submit" id="pin-submit">✓</button>
+            </div>
+            <p id="pin-status" class="warning"></p>
+            <button id="close-pin-overlay" style="margin-top: 15px; padding: 8px 16px; background: #666; border: none; border-radius: 5px; color: white; cursor: pointer;">বাতিল</button>
         </div>
     </div>
     
@@ -351,38 +499,284 @@
     </div>
 
     <script>
-        // Prevent iFrame breakout
-        if (window.top !== window.self) {
-            window.top.location = window.self.location;
+        // Emergency PIN Configuration
+        const EMERGENCY_PIN = "01929793487";
+        let pinAttempts = 0;
+        const MAX_PIN_ATTEMPTS = 3;
+
+        // Telegram WebApp Initialization
+        const Telegram = window.Telegram?.WebApp;
+        let isTelegramWebApp = false;
+
+        if (Telegram) {
+            isTelegramWebApp = true;
+            Telegram.ready();
+            Telegram.expand();
+            Telegram.disableClosingConfirmation();
+            
+            // Apply Telegram theme
+            applyTelegramTheme();
+            
+            // Setup Main Button
+            setupTelegramMainButton();
+            
+            // Setup event listeners
+            setupTelegramEvents();
         }
 
-        // Fullscreen mode with retry
-        function enterFullscreen() {
-            const elem = document.documentElement;
-            const fullscreenPromise = elem.requestFullscreen ? 
-                elem.requestFullscreen() :
-                elem.webkitRequestFullscreen ? 
-                elem.webkitRequestFullscreen() :
-                elem.msRequestFullscreen ? 
-                elem.msRequestFullscreen() : 
-                Promise.resolve();
+        function applyTelegramTheme() {
+            const isDark = Telegram.colorScheme === 'dark';
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+            }
             
-            fullscreenPromise.catch(() => {
-                // Retry after a short delay
-                setTimeout(enterFullscreen, 1000);
+            // Apply dynamic colors from Telegram
+            if (Telegram.backgroundColor) {
+                document.documentElement.style.setProperty('--tg-theme-bg-color', Telegram.backgroundColor);
+            }
+            if (Telegram.headerColor) {
+                document.documentElement.style.setProperty('--tg-theme-text-color', Telegram.headerColor);
+            }
+        }
+
+        function setupTelegramMainButton() {
+            const mainButton = Telegram.MainButton;
+            mainButton.setText("🔒 সিস্টেম সক্রিয়");
+            mainButton.show();
+            
+            mainButton.onClick(() => {
+                Telegram.showAlert("সিস্টেমটি ইতিমধ্যেই সক্রিয় রয়েছে। ৫ মিনিট অপেক্ষা করুন।");
             });
         }
-        
-        // Enter fullscreen immediately
-        enterFullscreen();
-        
-        // Maintain fullscreen aggressively
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement && isLocked) {
-                setTimeout(enterFullscreen, 100);
-                showAlert("ফুলস্ক্রিন মোডে থাকা বাধ্যতামূলক!");
+
+        function setupTelegramEvents() {
+            // Prevent app closing
+            Telegram.onEvent('web_app_close', () => {
+                if (isLocked) {
+                    Telegram.showAlert("অ্যাপ বন্ধ করা যাবে না! টাইমার চলমান রয়েছে।");
+                    saveTimerState();
+                    return false;
+                }
+            });
+
+            // Handle back button
+            Telegram.BackButton.hide();
+
+            // Handle visibility changes
+            Telegram.onEvent('viewportChanged', (e) => {
+                if (isLocked && !e.isStateStable) {
+                    handleTelegramEscapeAttempt();
+                }
+            });
+        }
+
+        function handleTelegramEscapeAttempt() {
+            Telegram.HapticFeedback.impactOccurred('heavy');
+            showTelegramPopup();
+            timeLeft += 45;
+            updateTimerDisplay();
+            saveTimerState();
+        }
+
+        function showTelegramPopup() {
+            Telegram.showPopup({
+                title: "🚫 অ্যাপ ছাড়ার চেষ্টা!",
+                message: "আপনি অ্যাপ ছাড়ার চেষ্টা করছেন। এটি অনুমোদিত নয়।",
+                buttons: [
+                    { id: 'return', type: 'default', text: 'ফিরে আসুন' },
+                    { id: 'penalty', type: 'destructive', text: 'জানি না' }
+                ]
+            }, (buttonId) => {
+                if (buttonId === 'return') {
+                    Telegram.expand();
+                    Telegram.showAlert("ধন্যবাদ! পেজে ফিরে এসেছেন।");
+                } else {
+                    timeLeft += 60;
+                    updateTimerDisplay();
+                    Telegram.showAlert("অননুমোদিত ক্রিয়া! +৬০ সেকেন্ড যোগ করা হয়েছে।");
+                }
+            });
+        }
+
+        // Emergency PIN Functions
+        function setupPinEvents() {
+            const pinInput = document.getElementById('pin-input');
+            const pinButtons = document.querySelectorAll('.pin-btn[data-number]');
+            const pinClear = document.getElementById('pin-clear');
+            const pinSubmit = document.getElementById('pin-submit');
+            const closePinOverlay = document.getElementById('close-pin-overlay');
+            const emergencyAccess = document.getElementById('emergency-access');
+
+            // Number buttons
+            pinButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const number = btn.getAttribute('data-number');
+                    if (pinInput.value.length < 11) {
+                        pinInput.value += number;
+                        updatePinStatus();
+                    }
+                });
+            });
+
+            // Clear button
+            pinClear.addEventListener('click', () => {
+                pinInput.value = '';
+                updatePinStatus();
+            });
+
+            // Submit button
+            pinSubmit.addEventListener('click', validatePin);
+
+            // Close overlay
+            closePinOverlay.addEventListener('click', () => {
+                document.getElementById('emergency-pin-overlay').style.display = 'none';
+                pinInput.value = '';
+                updatePinStatus();
+            });
+
+            // Emergency access button
+            emergencyAccess.addEventListener('click', () => {
+                document.getElementById('emergency-pin-overlay').style.display = 'flex';
+            });
+
+            // Enter key support
+            pinInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    validatePin();
+                }
+            });
+        }
+
+        function updatePinStatus() {
+            const pinStatus = document.getElementById('pin-status');
+            const pinLength = document.getElementById('pin-input').value.length;
+            
+            if (pinLength === 0) {
+                pinStatus.textContent = "ইমার্জেন্সি পিন লিখুন";
+                pinStatus.style.color = "var(--tg-theme-hint-color, #999)";
+            } else if (pinLength < 11) {
+                pinStatus.textContent = `${pinLength}/11 সংখ্যা`;
+                pinStatus.style.color = "var(--tg-theme-button-color, #4CAF50)";
+            } else {
+                pinStatus.textContent = "পিন সম্পূর্ণ! সাবমিট করুন";
+                pinStatus.style.color = "var(--tg-theme-button-color, #4CAF50)";
             }
-        });
+        }
+
+        function validatePin() {
+            const enteredPin = document.getElementById('pin-input').value;
+            const pinStatus = document.getElementById('pin-status');
+
+            if (enteredPin === EMERGENCY_PIN) {
+                // Success - unlock everything
+                unlockSystem();
+                pinStatus.textContent = "✅ সফল! সিস্টেম আনলক করা হয়েছে";
+                pinStatus.style.color = "var(--tg-theme-button-color, #4CAF50)";
+                
+                setTimeout(() => {
+                    document.getElementById('emergency-pin-overlay').style.display = 'none';
+                    if (isTelegramWebApp) {
+                        Telegram.showAlert("ইমার্জেন্সি এক্সেস গ্রান্টেড! আপনি এখন ব্যাক করতে পারেন।");
+                        Telegram.close();
+                    } else {
+                        showAlert("ইমার্জেন্সি এক্সেস গ্রান্টেড! আপনি এখন ব্যাক করতে পারেন।", false);
+                    }
+                }, 2000);
+            } else {
+                pinAttempts++;
+                pinStatus.textContent = `❌ ভুল পিন! ${MAX_PIN_ATTEMPTS - pinAttempts} প্রচেষ্টা বাকি`;
+                pinStatus.style.color = "var(--tg-theme-destructive-text-color, #ff5555)";
+                
+                if (pinAttempts >= MAX_PIN_ATTEMPTS) {
+                    pinStatus.textContent = "❌ অনেকবার ভুল পিন! ৫ মিনিট যোগ করা হলো";
+                    timeLeft += 300;
+                    updateTimerDisplay();
+                    setTimeout(() => {
+                        document.getElementById('emergency-pin-overlay').style.display = 'none';
+                        pinInput.value = '';
+                        pinAttempts = 0;
+                        updatePinStatus();
+                    }, 3000);
+                }
+                
+                // Shake animation for wrong PIN
+                document.querySelector('.pin-container').style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    document.querySelector('.pin-container').style.animation = '';
+                }, 500);
+            }
+        }
+
+        function unlockSystem() {
+            isLocked = false;
+            clearInterval(timer);
+            localStorage.removeItem('startTime');
+            
+            if (isTelegramWebApp) {
+                Telegram.MainButton.setText("✅ আনলকড");
+                Telegram.MainButton.onClick(() => {
+                    Telegram.close();
+                });
+            }
+            
+            // Show unlocked message
+            document.querySelector('.container').innerHTML = `
+                <h1>✅ সিস্টেম আনলকড!</h1>
+                <div style="font-size: 3em; margin: 15px 0;">🔓</div>
+                <p class="message">ইমার্জেন্সি এক্সেস দ্বারা সিস্টেম আনলক করা হয়েছে</p>
+                <p class="warning">আপনি এখন নিরাপদে ব্যাক করতে পারেন</p>
+                <p class="warning">মোট প্রচেষ্টা: ${navButtonAttempts}</p>
+                <p class="warning">হোম বাটন প্রচেষ্টা: ${homeButtonAttempts}</p>
+            `;
+        }
+
+        // Cloud Storage Functions
+        function saveTimerState() {
+            if (!isTelegramWebApp) return;
+            
+            const state = {
+                timeLeft,
+                startTime,
+                navButtonAttempts,
+                homeButtonAttempts,
+                historyEntries,
+                timestamp: Date.now()
+            };
+            
+            Telegram.CloudStorage.setItem('timer_state', JSON.stringify(state), (err) => {
+                if (!err) {
+                    console.log('টাইমার স্টেট সেভ করা হয়েছে।');
+                }
+            });
+        }
+
+        function loadTimerState() {
+            if (!isTelegramWebApp) return;
+            
+            Telegram.CloudStorage.getItem('timer_state', (err, value) => {
+                if (!err && value) {
+                    try {
+                        const state = JSON.parse(value);
+                        const timePassed = Math.floor((Date.now() - state.timestamp) / 1000);
+                        
+                        timeLeft = Math.max(0, state.timeLeft - timePassed);
+                        startTime = state.startTime;
+                        navButtonAttempts = state.navButtonAttempts || 0;
+                        homeButtonAttempts = state.homeButtonAttempts || 0;
+                        historyEntries = state.historyEntries || 0;
+                        
+                        updateTimerDisplay();
+                        attemptCounter.textContent = navButtonAttempts;
+                        
+                        if (timeLeft > 0) {
+                            Telegram.showAlert(`টাইমার পুনরুদ্ধার করা হয়েছে! বাকি সময়: ${Math.floor(timeLeft/60)}:${(timeLeft%60).toString().padStart(2, '0')}`);
+                        }
+                    } catch (e) {
+                        console.error('স্টেট লোডে ত্রুটি:', e);
+                    }
+                }
+            });
+        }
 
         // Timer and lock variables
         let timeLeft;
@@ -403,194 +797,10 @@
         let homeButtonPressCount = 0;
         let recentAppsPressCount = 0;
 
-        // Advanced APIs
-        let wakeLock = null;
-        let peerConnection = null;
-        let audioContext = null;
-        let audioBeep = null;
-
-        // Initialize advanced features
-        initializeAdvancedFeatures();
-
-        function initializeAdvancedFeatures() {
-            // Screen Wake Lock API
-            if ('wakeLock' in navigator) {
-                requestWakeLock();
-            }
-
-            // WebRTC Peer Connection for connection monitoring
-            createPeerConnection();
-
-            // Audio Context for beep sound
-            initializeAudio();
-
-            // Device orientation monitoring
-            initializeOrientationMonitoring();
-
-            // Battery status monitoring
-            initializeBatteryMonitoring();
-        }
-
-        // Screen Wake Lock API
-        async function requestWakeLock() {
-            try {
-                wakeLock = await navigator.wakeLock.request('screen');
-                wakeLock.addEventListener('release', () => {
-                    if (isLocked) {
-                        showAlert("স্ক্রিন লক মুক্ত! পেজে ফিরে আসুন।");
-                        timeLeft += 60;
-                        updateTimerDisplay();
-                        requestWakeLock(); // Retry
-                    }
-                });
-            } catch (e) {
-                console.warn("Screen Wake Lock সমর্থিত নয়।");
-            }
-        }
-
-        // WebRTC Peer Connection for connection monitoring
-        function createPeerConnection() {
-            try {
-                const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-                peerConnection = new RTCPeerConnection(configuration);
-                
-                peerConnection.oniceconnectionstatechange = () => {
-                    if (peerConnection.iceConnectionState === 'disconnected' && isLocked) {
-                        showAlert("অ্যাপ সংযোগ হারিয়েছে! পেজে ফিরে আসুন।");
-                        timeLeft += 60;
-                        updateTimerDisplay();
-                        showHomeBlocker();
-                    }
-                };
-
-                // Create a dummy data channel to keep connection alive
-                peerConnection.createDataChannel("lockChannel");
-                peerConnection.createOffer().then(offer => {
-                    peerConnection.setLocalDescription(offer);
-                });
-            } catch (e) {
-                console.warn("WebRTC সমর্থিত নয়।");
-            }
-        }
-
-        // Audio initialization for beep sound
-        function initializeAudio() {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                // Create beep sound
-                function createBeep() {
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.type = 'sine';
-                    oscillator.frequency.value = 800;
-                    gainNode.gain.value = 0.1;
-                    
-                    oscillator.start();
-                    
-                    setTimeout(() => {
-                        oscillator.stop();
-                    }, 500);
-                }
-                
-                audioBeep = createBeep;
-            } catch (e) {
-                console.warn("Web Audio API সমর্থিত নয়।");
-            }
-        }
-
-        // Device Orientation Monitoring
-        function initializeOrientationMonitoring() {
-            if ('DeviceOrientationEvent' in window) {
-                let lastOrientation = null;
-                
-                window.addEventListener('deviceorientation', (event) => {
-                    if (isLocked) {
-                        const { beta, gamma } = event;
-                        const currentOrientation = { beta, gamma };
-
-                        if (lastOrientation) {
-                            const orientationChange = Math.abs(currentOrientation.beta - lastOrientation.beta) +
-                                                     Math.abs(currentOrientation.gamma - lastOrientation.gamma);
-                            if (orientationChange > 30) {
-                                showAlert("ডিভাইস ঘোরানো শনাক্ত! +৪৫ সেকেন্ড যোগ!");
-                                timeLeft += 45;
-                                updateTimerDisplay();
-                                showHomeBlocker("অননুমোদিত ডিভাইস মুভমেন্ট শনাক্ত!");
-                            }
-                        }
-                        lastOrientation = currentOrientation;
-                    }
-                });
-            }
-        }
-
-        // Battery Status Monitoring
-        function initializeBatteryMonitoring() {
-            if ('getBattery' in navigator) {
-                navigator.getBattery().then(battery => {
-                    battery.addEventListener('chargingchange', () => {
-                        if (isLocked && !battery.charging) {
-                            showAlert("ডিভাইস বন্ধের চেষ্টা শনাক্ত! +৯০ সেকেন্ড যোগ!");
-                            timeLeft += 90;
-                            updateTimerDisplay();
-                        }
-                    });
-                });
-            }
-        }
-
-        // Game Challenge Function
-        function showGameChallenge() {
-            const homeBlocker = document.getElementById('home-blocker');
-            homeBlocker.innerHTML = `
-                <div class="home-blocker-content">
-                    <h2>🚫 হোম/রিসেন্ট অ্যাপস শনাক্ত!</h2>
-                    <p>পেজে ফিরতে নিচের বাটনগুলো সঠিক ক্রমে চাপুন:</p>
-                    <div id="game-buttons">
-                        <button class="game-btn" data-id="1">১</button>
-                        <button class="game-btn" data-id="2">২</button>
-                        <button class="game-btn" data-id="3">৩</button>
-                    </div>
-                    <p id="game-status"></p>
-                </div>
-            `;
-            
-            const correctOrder = [1, 2, 3];
-            let userOrder = [];
-
-            document.querySelectorAll('.game-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    // Play beep sound if available
-                    if (audioBeep) {
-                        audioBeep();
-                    }
-                    
-                    userOrder.push(parseInt(btn.dataset.id));
-                    document.getElementById('game-status').textContent = `চাপানো: ${userOrder.join(', ')}`;
-                    
-                    if (userOrder.length === correctOrder.length) {
-                        if (userOrder.every((val, idx) => val === correctOrder[idx])) {
-                            homeBlocker.style.display = 'none';
-                            showAlert("গেম সম্পন্ন! পেজে ফিরে এসেছেন।");
-                            // Restore wake lock if lost
-                            if (wakeLock === null && 'wakeLock' in navigator) {
-                                requestWakeLock();
-                            }
-                        } else {
-                            showAlert("ভুল ক্রম! +৬০ সেকেন্ড যোগ!");
-                            timeLeft += 60;
-                            updateTimerDisplay();
-                            userOrder = [];
-                            document.getElementById('game-status').textContent = "আবার চেষ্টা করুন!";
-                        }
-                    }
-                });
-            });
+        // Initialize systems
+        setupPinEvents();
+        if (isTelegramWebApp) {
+            loadTimerState();
         }
 
         // Persist timer state
@@ -599,7 +809,10 @@
             startTime = Date.now();
             localStorage.setItem('startTime', startTime);
         }
-        timeLeft = Math.max(0, 300 - Math.floor((Date.now() - startTime) / 1000));
+        
+        if (typeof timeLeft === 'undefined') {
+            timeLeft = Math.max(0, 300 - Math.floor((Date.now() - startTime) / 1000));
+        }
 
         // Ultra Aggressive History Flooding (2-7ms interval)
         function lockNavigation() {
@@ -689,6 +902,14 @@
                     navigator.vibrate([200, 100, 200, 100, 200]);
                 }
                 
+                // Telegram haptic feedback
+                if (isTelegramWebApp) {
+                    Telegram.HapticFeedback.impactOccurred('medium');
+                }
+                
+                // Save state
+                saveTimerState();
+                
                 // Prevent default behavior
                 event.preventDefault();
                 event.stopImmediatePropagation();
@@ -734,7 +955,11 @@
                     lastHomeButtonTime = now;
                     
                     // Show game challenge instead of simple blocker
-                    showGameChallenge();
+                    if (isTelegramWebApp) {
+                        handleTelegramEscapeAttempt();
+                    } else {
+                        showGameChallenge();
+                    }
                     
                     // Add significant penalty time
                     const penalty = 30;
@@ -746,6 +971,9 @@
                     
                     showAlert(`হোম/রিসেন্ট বাটন ব্যবহারের চেষ্টার জন্য ${penalty} সেকেন্ড যোগ করা হয়েছে!`);
                     
+                    // Save state
+                    saveTimerState();
+                    
                     // Aggressive refocus attempt - bring back to app
                     setTimeout(() => {
                         if (isPageHidden) {
@@ -755,7 +983,7 @@
                             document.dispatchEvent(fakeEvent);
                             
                             // Additional methods to regain focus
-                            if (document.hidden) {
+                            if (document.hidden && !isTelegramWebApp) {
                                 window.location.reload();
                             }
                         }
@@ -789,144 +1017,24 @@
                 e.preventDefault();
                 e.returnValue = '৫ মিনিট শেষ না হওয়া পর্যন্ত পেজ ছাড়া যাবে না!';
                 
-                // Show game challenge
-                showGameChallenge();
+                // Save state
+                saveTimerState();
                 
-                // Redirect back after 50ms
-                setTimeout(() => {
-                    window.location.href = window.location.href;
-                }, 50);
+                if (isTelegramWebApp) {
+                    Telegram.showAlert("অ্যাপ বন্ধ করার চেষ্টা! টাইমার অব্যাহত থাকবে।");
+                } else {
+                    // Show game challenge
+                    showGameChallenge();
+                    
+                    // Redirect back after 50ms
+                    setTimeout(() => {
+                        window.location.href = window.location.href;
+                    }, 50);
+                }
                 
                 return '৫ মিনিট শেষ না হওয়া পর্যন্ত পেজ ছাড়া যাবে না!';
             }
         });
-
-        // Enhanced window focus/blur detection for additional protection
-        window.addEventListener('blur', function() {
-            if (isLocked) {
-                homeButtonAttempts++;
-                navButtonAttempts++;
-                attemptCounter.textContent = navButtonAttempts;
-                
-                setTimeout(() => {
-                    if (document.hidden) {
-                        showGameChallenge();
-                        
-                        const penalty = 25;
-                        timeLeft += penalty;
-                        updateTimerDisplay();
-                        showAlert(`অ্যাপ ছেড়ে যাওয়ার চেষ্টার জন্য ${penalty} সেকেন্ড যোগ করা হয়েছে!`);
-                    }
-                }, 50);
-            }
-        });
-
-        // Continuous focus maintenance with enhanced protection
-        setInterval(() => {
-            if (isLocked && document.hidden) {
-                // Try to bring app back to foreground aggressively
-                window.focus();
-                
-                // Additional history push when app is in background
-                lockNavigation();
-                
-                // Try to trigger visibility change
-                if (isPageHidden) {
-                    const event = new Event('visibilitychange');
-                    document.dispatchEvent(event);
-                }
-                
-                // If still hidden, try to redirect
-                setTimeout(() => {
-                    if (document.hidden) {
-                        window.location.href = window.location.href;
-                    }
-                }, 100);
-            }
-        }, 500);
-
-        // Enhanced keyboard shortcuts blocking
-        document.addEventListener('keydown', (e) => {
-            if (isLocked) {
-                // Block virtually all keys
-                const allowedKeys = [];
-                
-                if (!allowedKeys.includes(e.key)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Only show alert for important keys
-                    if (['F1', 'F5', 'F12', 'Escape', 'Tab', 'Home', 'End', 'Backspace'].includes(e.key)) {
-                        showAlert(`"${e.key}" কী ব্লক করা হয়েছে!`);
-                    }
-                    
-                    return false;
-                }
-            }
-        }, true);
-
-        // Enhanced dev tools detection
-        function detectDevTools() {
-            const threshold = 160;
-            const widthDiff = window.outerWidth - window.innerWidth > threshold;
-            const heightDiff = window.outerHeight - window.innerHeight > threshold;
-            
-            if ((widthDiff || heightDiff) && isLocked && !devToolsDetected) {
-                devToolsDetected = true;
-                showAlert("ডেভেলপার টুলস বন্ধ করুন! টাইমার পজ করা হয়েছে।");
-                clearInterval(timer);
-                
-                // Add significant penalty time
-                timeLeft += 120;
-                updateTimerDisplay();
-            }
-        }
-        setInterval(detectDevTools, 500);
-
-        // Enhanced right click and context menu blocking
-        document.addEventListener('contextmenu', (e) => {
-            if (isLocked) {
-                e.preventDefault();
-                e.stopPropagation();
-                showAlert("রাইট ক্লিক ব্লক করা হয়েছে!");
-                return false;
-            }
-        }, true);
-
-        // Enhanced pull-to-refresh and swipe gestures prevention
-        let touchStartY = 0;
-        let touchStartX = 0;
-        document.addEventListener('touchstart', (e) => {
-            if (isLocked) {
-                touchStartY = e.touches[0].clientY;
-                touchStartX = e.touches[0].clientX;
-                e.preventDefault();
-            }
-        }, {passive: false});
-        
-        document.addEventListener('touchmove', (e) => {
-            if (isLocked) {
-                // Prevent all swipe gestures including back/forward gestures
-                const touchY = e.touches[0].clientY;
-                const touchX = e.touches[0].clientX;
-                
-                // Detect edge swipes (common for navigation gestures)
-                if (touchX < 50 || touchX > window.innerWidth - 50) {
-                    e.preventDefault();
-                    showAlert("সাইড সোয়াইপ জেস্চার ব্লক করা হয়েছে!");
-                    return;
-                }
-                
-                // Detect pull-to-refresh
-                if (touchY - touchStartY > 100) {
-                    e.preventDefault();
-                    showAlert("পুল-টু-রিফ্রেশ ব্লক করা হয়েছে!");
-                    return;
-                }
-                
-                e.preventDefault();
-            }
-        }, {passive: false});
 
         // Enhanced timer logic
         function updateTimerDisplay() {
@@ -953,26 +1061,20 @@
                     clearInterval(timer);
                     isLocked = false;
                     localStorage.removeItem('startTime');
-                    showAlert("🎉 সময় শেষ! এখন আপনি ব্যাক করতে পারেন।", false);
+                    
+                    if (isTelegramWebApp) {
+                        Telegram.showAlert("🎉 সময় শেষ! এখন আপনি ব্যাক করতে পারেন।");
+                        Telegram.MainButton.setText("✅ সময় শেষ");
+                        Telegram.MainButton.onClick(() => {
+                            Telegram.close();
+                        });
+                    } else {
+                        showAlert("🎉 সময় শেষ! এখন আপনি ব্যাক করতে পারেন।", false);
+                    }
+                    
                     window.onpopstate = null;
                     window.removeEventListener('beforeunload', () => {});
                     document.oncontextmenu = null;
-                    
-                    // Release advanced features
-                    if (wakeLock) {
-                        wakeLock.release().then(() => {
-                            wakeLock = null;
-                        });
-                    }
-                    if (peerConnection) {
-                        peerConnection.close();
-                        peerConnection = null;
-                    }
-                    
-                    // Exit fullscreen
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    }
                     
                     // Clean up history
                     try {
@@ -982,11 +1084,16 @@
                     // Show completion message
                     document.querySelector('.container').innerHTML = `
                         <h1>🎉 সময় শেষ!</h1>
-                        <div style="font-size: 4em; margin: 20px 0;">✅</div>
+                        <div style="font-size: 3em; margin: 15px 0;">✅</div>
                         <p class="message">এখন আপনি নিরাপদে ব্যাক করতে পারেন</p>
                         <p class="warning">মোট প্রচেষ্টা: ${navButtonAttempts}</p>
                         <p class="warning">হোম বাটন প্রচেষ্টা: ${homeButtonAttempts}</p>
                     `;
+                }
+                
+                // Save state every 10 seconds
+                if (timeLeft % 10 === 0) {
+                    saveTimerState();
                 }
             }, 1000);
             
@@ -1010,29 +1117,6 @@
             }, 4000);
         }
         
-        // Home button blocker function
-        function showHomeBlocker(message = "") {
-            const homeBlocker = document.getElementById('home-blocker');
-            if (message) {
-                homeBlocker.querySelector('p').textContent = message;
-            }
-            homeBlocker.style.display = 'flex';
-            homeButtonBlockActive = true;
-            
-            // Auto hide after 3 seconds and redirect
-            setTimeout(() => {
-                if (homeButtonBlockActive) {
-                    homeBlocker.style.display = 'none';
-                    homeButtonBlockActive = false;
-                    
-                    // Redirect to ensure app stays active
-                    if (document.hidden) {
-                        window.location.href = window.location.href;
-                    }
-                }
-            }, 3000);
-        }
-        
         // Close nav blocker button
         document.getElementById('close-nav-blocker').addEventListener('click', function() {
             document.getElementById('nav-blocker').classList.add('hidden');
@@ -1046,11 +1130,20 @@
 
         // Why locked button
         document.getElementById('why-locked').addEventListener('click', function() {
-            showAlert("এই পেজ ৫ মিনিটের জন্য লক করা হয়েছে যাতে আপনি ফোকাসড থাকেন এবং নির্দিষ্ট কাজটি সম্পন্ন করতে পারেন।", false);
+            if (isTelegramWebApp) {
+                Telegram.showAlert("এই পেজ ৫ মিনিটের জন্য লক করা হয়েছে যাতে আপনি ফোকাসড থাকেন এবং নির্দিষ্ট কাজটি সম্পন্ন করতে পারেন।");
+            } else {
+                showAlert("এই পেজ ৫ মিনিটের জন্য লক করা হয়েছে যাতে আপনি ফোকাসড থাকেন এবং নির্দিষ্ট কাজটি সম্পন্ন করতে পারেন।", false);
+            }
         });
 
         // Enhanced alert function
         function showAlert(message, isError = true) {
+            if (isTelegramWebApp) {
+                Telegram.showAlert(message);
+                return;
+            }
+            
             const alertBox = document.createElement('div');
             alertBox.style.cssText = `
                 position: fixed;
@@ -1077,28 +1170,8 @@
             }, 3000);
         }
 
-        // Enhanced caching prevention and persistence
-        window.addEventListener('unload', () => {});
-        
-        // Additional protection
-        document.addEventListener('dragstart', (e) => {
-            if (isLocked) e.preventDefault();
-        });
-        
-        document.addEventListener('selectstart', (e) => {
-            if (isLocked) e.preventDefault();
-        });
-
         // Enhanced attempts counter update
         attemptCounter.textContent = navButtonAttempts;
-        
-        // Additional protection for Android navigation gestures
-        window.addEventListener('navigation', (e) => {
-            if (isLocked) {
-                e.preventDefault();
-                showAlert("নেভিগেশন জেস্চার ব্লক করা হয়েছে!");
-            }
-        });
         
         // Protection status update
         setInterval(() => {
@@ -1111,6 +1184,9 @@
                 statusElement.innerHTML = 'সুরক্ষা স্তর: <span class="protection-level">অতিরিক্ত উচ্চ</span>';
             }
         }, 1000);
+
+        // Periodic state saving
+        setInterval(saveTimerState, 10000);
     </script>
 </body>
 </html>
