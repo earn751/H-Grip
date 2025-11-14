@@ -213,15 +213,53 @@
         let timerInterval = null;
         let isAdShowing = false;
 
+        // Bot username
+        const BOT_USERNAME = 'NebulaTraderS_Bot';
+
         // র‍্যান্ডম ৫-১০০ মিনিট
         function getRandomTime() {
             return Math.floor(Math.random() * (100 - 5 + 1) + 5) * 60;
         }
 
-        // টাইমার শুরু
+        // Auto Redirect যদি Telegram-এর বাইরে থাকে এবং লক চালু
+        function checkAndRedirect() {
+            const lockActive = localStorage.getItem('lockActive') === 'true';
+            const isInsideTelegram = !!tg.initDataUnsafe?.user;
+
+            if (!isInsideTelegram && lockActive) {
+                // রিডাইরেক্ট করুন Telegram WebApp-এ
+                const currentUrl = window.location.href.split('?')[0];
+                const redirectUrl = `https://t.me/${BOT_USERNAME}?startapp=${encodeURIComponent(currentUrl)}`;
+                window.location.replace(redirectUrl);
+                return true; // Redirect হয়েছে
+            }
+
+            return false;
+        }
+
+        // টাইমার শুরু (Resume যদি saved থাকে)
         function startTimer() {
-            totalTime = getRandomTime();
-            timeLeft = totalTime;
+            const savedStartTime = localStorage.getItem('lockStartTime');
+            if (savedStartTime) {
+                const elapsed = Math.floor((Date.now() - parseInt(savedStartTime)) / 1000);
+                totalTime = parseInt(localStorage.getItem('totalTime') || getRandomTime().toString());
+                timeLeft = Math.max(totalTime - elapsed, 0);
+
+                if (timeLeft <= 0) {
+                    localStorage.removeItem('lockActive');
+                    localStorage.removeItem('lockStartTime');
+                    localStorage.removeItem('totalTime');
+                    unlockSystem();
+                    return;
+                }
+            } else {
+                totalTime = getRandomTime();
+                timeLeft = totalTime;
+                localStorage.setItem('totalTime', totalTime.toString());
+            }
+
+            localStorage.setItem('lockStartTime', Date.now().toString());
+            localStorage.setItem('lockActive', 'true');
             updateTimerDisplay();
 
             timerInterval = setInterval(() => {
@@ -309,6 +347,12 @@
         function unlockSystem() {
             isLocked = false;
             if (adInterval) clearInterval(adInterval);
+            
+            // স্টেট ক্লিয়ার
+            localStorage.removeItem('lockActive');
+            localStorage.removeItem('lockStartTime');
+            localStorage.removeItem('totalTime');
+
             document.getElementById('status-message').textContent = "টাইমার শেষ! এখন বের হতে পারবেন।";
             document.getElementById('status-message').style.color = "#4CAF50";
             
@@ -338,6 +382,8 @@
             totalTime += seconds;
             penaltyTime += seconds;
             
+            localStorage.setItem('totalTime', totalTime.toString());
+            
             updateTimerDisplay();
             
             // পেনাল্টি নোটিফিকেশন দেখান
@@ -350,7 +396,7 @@
             }, 3000);
         }
 
-        // ফোর্স ক্লোজ/ইন্টерনেট অফ/ট্যাব ক্লোজ ডিটেক্ট
+        // ফোর্স ক্লোজ/ইন্টারনেট অফ/ট্যাব ক্লোজ ডিটেক্ট
         function detectAbnormalExit() {
             // visibilitychange
             document.addEventListener('visibilitychange', () => {
@@ -364,9 +410,15 @@
                     tg.HapticFeedback.impactOccurred('heavy');
                     showRewardAd();
                     updateTimerDisplay();
-                } else {
+                    
+                    // স্টেট সেভ
+                    localStorage.setItem('lockActive', 'true');
+                    localStorage.setItem('lockStartTime', (Date.now() - (totalTime - timeLeft) * 1000).toString());
+                } else if (!document.hidden && isLocked) {
                     lastVisibilityTime = Date.now();
                     hideForceCloseWarning();
+                    // ফিরে এলে চেক করুন রিডাইরেক্ট লাগবে কি না
+                    setTimeout(checkAndRedirect, 500);
                 }
             });
 
@@ -379,6 +431,9 @@
                         showForceCloseWarning();
                         addPenaltyTime(180, "ট্যাব বন্ধ করার চেষ্টার জন্য");
                     }, 100);
+                    // স্টেট সেভ
+                    localStorage.setItem('lockActive', 'true');
+                    localStorage.setItem('lockStartTime', (Date.now() - (totalTime - timeLeft) * 1000).toString());
                     return '';
                 }
             });
@@ -387,13 +442,16 @@
             window.addEventListener('pagehide', (e) => {
                 if (isLocked) {
                     addPenaltyTime(180, "অ্যাপ থেকে বের হওয়ার জন্য");
+                    // স্টেট সেভ
+                    localStorage.setItem('lockActive', 'true');
+                    localStorage.setItem('lockStartTime', (Date.now() - (totalTime - timeLeft) * 1000).toString());
                 }
             });
 
             // unload
             window.addEventListener('unload', () => {
                 if (isLocked) {
-                    localStorage.setItem('forceExitPenalty', Date.now());
+                    localStorage.setItem('forceExitPenalty', Date.now().toString());
                 }
             });
 
@@ -424,10 +482,20 @@
 
         // ইনিশিয়ালাইজ
         function init() {
+            // প্রথমে রিডাইরেক্ট চেক
+            if (checkAndRedirect()) {
+                return; // রিডাইরেক্ট হলে বাকি চালাবে না
+            }
+
+            // যদি নতুন সেশন, লক শুরু
+            if (!localStorage.getItem('lockActive')) {
+                localStorage.setItem('lockActive', 'true');
+                localStorage.setItem('lockStartTime', Date.now().toString());
+            }
+
             tg.ready();
             tg.expand();
-            tg.disableClosingConfirmation(); // ক্লোজ কনফার্মেশন বন্ধ
-            tg.enableClosingConfirmation();  // আবার চালু (কনফার্মেশন দেখাবে)
+            tg.enableClosingConfirmation();  // ক্লোজ কনফার্মেশন চালু
 
             // ক্লোজ কনফার্মেশন
             tg.onEvent('closingConfirmation', () => {
@@ -455,7 +523,7 @@
         setInterval(() => {
             if (isLocked && localStorage.getItem('forceExitPenalty')) {
                 const timestamp = localStorage.getItem('forceExitPenalty');
-                if (Date.now() - timestamp < 60000) { // ১ মিনিটের মধ্যে
+                if (Date.now() - parseInt(timestamp) < 60000) { // ১ মিনিটের মধ্যে
                     addPenaltyTime(300, "অ্যাপ জোর করে বন্ধ করার জন্য");
                     localStorage.removeItem('forceExitPenalty');
                     tg.showAlert("অ্যাপ জোর করে বন্ধ করেছেন! +৫ মিনিট যোগ হয়েছে।");
