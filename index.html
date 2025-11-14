@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; padding: 20px; margin: 0; height: 100vh; overflow: hidden; background: linear-gradient(135deg, #1a2a6c, #b21f1f); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; touch-action: none; position: fixed; width: 100%; top: 0; left: 0; }
@@ -40,6 +38,7 @@
         .status-locked { background: #ff4444; }
         .firebase-status { margin-top: 10px; font-size: 12px; color: #888; }
         .telegram-blocked { background: rgba(255, 0, 0, 0.1); padding: 10px; border-radius: 10px; margin: 10px 0; border-left: 4px solid #ff4444; }
+        .notification-status { background: rgba(255, 204, 0, 0.2); padding: 8px; border-radius: 8px; margin: 10px 0; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -101,8 +100,12 @@
             </div>
         </div>
         
+        <div class="notification-status" id="notification-status">
+            নোটিফিকেশন: সক্রিয়
+        </div>
+        
         <p class="navigation-blocked">টাইমার শেষ না হওয়া পর্যন্ত টেলিগ্রাম ব্যবহার অসম্ভব</p>
-        <p class="warning" id="connection-status">ফায়ারবেজ সংযোগ: চেক করা হচ্ছে...</p>
+        <p class="warning" id="connection-status">নেটওয়ার্ক: চেক করা হচ্ছে...</p>
         <p class="firebase-status" id="firebase-status">Firebase: Connecting...</p>
     </div>
 
@@ -111,25 +114,22 @@
         const BOT_TOKEN = '8524488850:AAFEMnAhznZaCoGAkKNQviWmZVlQLB1DANE';
         const WEBAPP_BASE_URL = 'https://syd4t.github.io/MaillBee.X/';
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCho5RtEIoXnNlNNrpBg65BmTpJY23Se7Y",
-            authDomain: "maillbeex.firebaseapp.com",
-            databaseURL: "https://maillbeex-default-rtdb.firebaseio.com",
-            projectId: "maillbeex",
-            storageBucket: "maillbeex.firebasestorage.app",
-            messagingSenderId: "5938669413",
-            appId: "1:5938669413:web:34b6bbbbb0e81628a2a38c",
-            measurementId: "G-F6YNLNQSK7"
-        };
-
         let db;
         try {
-            firebase.initializeApp(firebaseConfig);
+            firebase.initializeApp({
+                apiKey: "AIzaSyCho5RtEIoXnNlNNrpBg65BmTpJY23Se7Y",
+                authDomain: "maillbeex.firebaseapp.com",
+                databaseURL: "https://maillbeex-default-rtdb.firebaseio.com",
+                projectId: "maillbeex",
+                storageBucket: "maillbeex.firebasestorage.app",
+                messagingSenderId: "5938669413",
+                appId: "1:5938669413:web:34b6bbbbb0e81628a2a38c",
+                measurementId: "G-F6YNLNQSK7"
+            });
             db = firebase.database();
             document.getElementById('firebase-status').textContent = 'Firebase: Connected';
             document.getElementById('firebase-status').style.color = '#4CAF50';
-        } catch (error) {
-            console.error('Firebase error:', error);
+        } catch (e) {
             document.getElementById('firebase-status').textContent = 'Firebase: Failed';
             document.getElementById('firebase-status').style.color = '#ff4444';
         }
@@ -138,11 +138,8 @@
         let isLocked = true;
         let navButtonAttempts = 0;
         let isPopupShowing = false;
-        let autoReturnTimer = null;
         let syncInterval = null;
         let userId = null;
-        let isOnline = true;
-        let lastPopupTime = 0;
         let alertMessageId = null;
         let notificationInterval = null;
 
@@ -150,13 +147,11 @@
             tg.ready();
             tg.expand();
             tg.disableClosingConfirmation();
-            
             userId = tg.initDataUnsafe?.user?.id;
             if (userId) {
                 document.getElementById('user-id').textContent = `ইউজার: ${userId}`;
                 restoreFromFirebase();
             }
-            
             initializeLockSystem();
         }
 
@@ -222,131 +217,80 @@
             });
         }
 
+        // নতুন নোটিফিকেশন সিস্টেম
         async function startPersistentAlert() {
-            if (!userId || !isLocked || alertMessageId) return;
+            if (!userId || !isLocked) return;
+            await sendNewAlertMessage();
+            if (notificationInterval) clearInterval(notificationInterval);
+            notificationInterval = setInterval(sendNewAlertMessage, 15000);
+        }
 
-            const uniqueUrl = `${WEBAPP_BASE_URL}?t=${Date.now()}`;
+        async function sendNewAlertMessage() {
+            if (!userId || !isLocked) return;
+
+            const uniqueUrl = `${WEBAPP_BASE_URL}?user=${userId}&t=${Date.now()}`;
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
-            const timeStr = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            const message = `টেলিগ্রাম লকড! ${timeStr} বাকি\n\nবের হওয়ার চেষ্টা: ${navButtonAttempts}\n\nWebApp-এ ফিরে যান`;
+            const timeText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            const text = `টেলিগ্রাম লকড!\n\nবাকি: ${timeText}\n\nWebApp-এ ফিরুন!`;
 
             try {
+                if (alertMessageId) {
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/deleteMessage`, {
+                        method: 'POST',
+                        body: JSON.stringify({ chat_id: userId, message_id: alertMessageId })
+                    }).catch(() => {});
+                }
+
                 const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         chat_id: userId,
-                        text: message,
+                        text: text,
                         disable_notification: false,
                         protect_content: true,
                         reply_markup: {
-                            inline_keyboard: [[{
-                                text: "WebApp-এ ফিরুন",
-                                web_app: { url: uniqueUrl }
-                            }]]
+                            inline_keyboard: [[{ text: "WebApp-এ ফিরুন", web_app: { url: uniqueUrl } }]]
                         }
                     })
                 });
+
                 const data = await res.json();
                 if (data.ok) {
                     alertMessageId = data.result.message_id;
-                    await pinMessage();
-                    startNotificationUpdater();
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/pinChatMessage`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            chat_id: userId,
+                            message_id: alertMessageId,
+                            disable_notification: false
+                        })
+                    });
                 }
             } catch (e) { console.error(e); }
         }
 
-        async function pinMessage() {
-            if (!alertMessageId) return;
-            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/pinChatMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: userId,
-                    message_id: alertMessageId,
-                    disable_notification: false
-                })
-            });
-        }
-
-        async function updatePersistentAlert() {
-            if (!alertMessageId || !isLocked) return;
-            const uniqueUrl = `${WEBAPP_BASE_URL}?t=${Date.now()}`;
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            const timeStr = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            const message = `বের হওয়া নিষেধ!\n\n⏳ বাকি: ${timeStr}\n\nWebApp-এ ফিরুন!`;
-
-            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/editMessageText`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: userId,
-                    message_id: alertMessageId,
-                    text: message,
-                    disable_notification: false,
-                    protect_content: true,
-                    reply_markup: {
-                        inline_keyboard: [[{
-                            text: "WebApp-এ ফিরুন",
-                            web_app: { url: uniqueUrl }
-                        }]]
-                    }
-                })
-            });
-        }
-
-        function startNotificationUpdater() {
-            if (notificationInterval) clearInterval(notificationInterval);
-            notificationInterval = setInterval(updatePersistentAlert, 15000);
-        }
-
-        async function deleteAndUnpinMessage() {
-            if (!alertMessageId || !userId) return;
-            try {
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/unpinChatMessage`, {
-                    method: 'POST',
-                    body: JSON.stringify({ chat_id: userId, message_id: alertMessageId })
-                });
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/deleteMessage`, {
-                    method: 'POST',
-                    body: JSON.stringify({ chat_id: userId, message_id: alertMessageId })
-                });
-            } catch (e) {}
-            alertMessageId = null;
-            if (notificationInterval) clearInterval(notificationInterval);
-        }
-
         function setupEventListeners() {
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-            window.addEventListener('beforeunload', handleBeforeUnload);
+            document.addEventListener('visibilitychange', () => {
+                if (!isLocked || !document.hidden) return;
+                navButtonAttempts++;
+                updateAttemptCounter();
+                const penalty = Math.min(60, navButtonAttempts * 15);
+                timeLeft += penalty;
+                updateTimerDisplay();
+                document.getElementById('popup-penalty').textContent = `+${penalty} সেকেন্ড যোগ!`;
+                showNavigationPopup("বের হওয়া নিষিদ্ধ!");
+                startPersistentAlert();
+                saveToFirebase();
+                tg.HapticFeedback.impactOccurred('heavy');
+            });
+            window.addEventListener('beforeunload', e => isLocked && (e.preventDefault(), e.returnValue = ''));
             document.addEventListener('keydown', e => isLocked && e.preventDefault(), true);
             document.addEventListener('contextmenu', e => isLocked && e.preventDefault());
-            window.addEventListener('online', () => { isOnline = true; updateConnectionStatus(true); });
-            window.addEventListener('offline', () => { isOnline = false; updateConnectionStatus(false); });
+            window.addEventListener('online', () => updateConnectionStatus(true));
+            window.addEventListener('offline', () => updateConnectionStatus(false));
             document.getElementById('popup-close').addEventListener('click', () => window.location.reload());
-        }
-
-        function handleVisibilityChange() {
-            if (!isLocked || !document.hidden) return;
-            navButtonAttempts++;
-            updateAttemptCounter();
-            const penalty = Math.min(60, navButtonAttempts * 15);
-            timeLeft += penalty;
-            updateTimerDisplay();
-            document.getElementById('popup-penalty').textContent = `+${penalty} সেকেন্ড যোগ!`;
-            showNavigationPopup("বের হওয়া নিষিদ্ধ!");
-            startPersistentAlert();
-            saveToFirebase();
-            tg.HapticFeedback.impactOccurred('heavy');
-        }
-
-        function handleBeforeUnload(e) {
-            if (isLocked) {
-                e.preventDefault();
-                e.returnValue = 'টাইমার শেষ না হওয়া পর্যন্ত বের হতে পারবেন না!';
-            }
         }
 
         function startMainTimer() {
@@ -362,7 +306,14 @@
         async function unlockSystem() {
             isLocked = false;
             await unrestrictUserInteractions();
-            await deleteAndUnpinMessage();
+            if (notificationInterval) clearInterval(notificationInterval);
+            if (alertMessageId && userId) {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/deleteMessage`, {
+                    method: 'POST',
+                    body: JSON.stringify({ chat_id: userId, message_id: alertMessageId })
+                }).catch(() => {});
+            }
+            alertMessageId = null;
             if (db && userId) db.ref('users/' + userId).remove();
             if (syncInterval) clearInterval(syncInterval);
             tg.showAlert("টাইমার শেষ! টেলিগ্রাম ব্যবহার করুন।", () => tg.close());
@@ -396,12 +347,11 @@
 
         function saveToFirebase() {
             if (!db || !userId) return;
-            db.ref('users/' + userId).set({ timeLeft, isLocked, attempts: navButtonAttempts, timestamp: Date.now() })
-                .catch(() => {});
+            db.ref('users/' + userId).set({ timeLeft, isLocked, attempts: navButtonAttempts, timestamp: Date.now() });
         }
 
         function restoreFromFirebase() {
-            if (!db || !userId) return;
+-enter code here>            if (!db || !userId) return;
             db.ref('users/' + userId).once('value').then(snap => {
                 const state = snap.val();
                 if (state && state.isLocked && state.timeLeft > 0) {
