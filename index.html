@@ -5,298 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            text-align: center;
-            padding: 20px;
-            margin: 0;
-            height: 100vh;
-            overflow: hidden;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            touch-action: none;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            left: 0;
-        }
-        
-        .container {
-            background: rgba(0, 0, 0, 0.95);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-            max-width: 400px;
-            width: 95%;
-            border: 3px solid #ff4444;
-        }
-        
-        h1 {
-            color: #fff;
-            margin-bottom: 20px;
-            font-size: 24px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        #timer {
-            font-size: 2.5em;
-            color: #ffcc00;
-            font-weight: bold;
-            margin: 20px 0;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-            font-family: 'Courier New', monospace;
-        }
-        
-        .progress-container {
-            width: 100%;
-            height: 15px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #ff416c, #ff4b2b);
-            border-radius: 10px;
-            transition: width 1s linear;
-        }
-        
-        .message {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #ddd;
-            line-height: 1.4;
-        }
-        
-        .warning {
-            color: #ff9999;
-            font-size: 12px;
-            margin-top: 10px;
-            line-height: 1.4;
-        }
-        
-        .navigation-blocked {
-            color: #ff5555;
-            font-weight: bold;
-            margin-top: 15px;
-            font-size: 16px;
-            background: rgba(255, 0, 0, 0.2);
-            padding: 8px;
-            border-radius: 8px;
-        }
-        
-        .hidden { 
-            display: none; 
-        }
-        
-        /* Popup Styles */
-        #popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.98);
-            z-index: 10000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s ease-in;
-        }
-        
-        .popup-content {
-            background: linear-gradient(135deg, #dc143c, #b22222);
-            padding: 25px;
-            border-radius: 15px;
-            text-align: center;
-            max-width: 90%;
-            width: 350px;
-            border: 3px solid #ffcc00;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            animation: slideIn 0.5s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @keyframes slideIn {
-            from { 
-                opacity: 0;
-                transform: translateY(-50px) scale(0.9);
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        
-        .popup-icon {
-            font-size: 50px;
-            margin-bottom: 15px;
-            animation: bounce 1s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-        
-        .popup-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            color: white;
-        }
-        
-        .popup-message {
-            font-size: 14px;
-            margin-bottom: 15px;
-            color: #ffe6e6;
-            line-height: 1.4;
-        }
-        
-        .popup-penalty {
-            font-size: 16px;
-            font-weight: bold;
-            color: #ffcc00;
-            margin: 12px 0;
-            padding: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-        }
-        
-        #popup-close {
-            background: #ffcc00;
-            color: #b22222;
-            border: none;
-            padding: 10px 25px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 20px;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-buttons-popup {
-            display: flex;
-            justify-content: center;
-            margin: 15px 0;
-        }
-        
-        .nav-button-popup {
-            width: 40px;
-            height: 40px;
-            margin: 0 8px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid #ffcc00;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 16px;
-        }
-        
-        .attempt-counter {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 0, 0, 0.8);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 5px;
-            font-size: 12px;
-            z-index: 999;
-        }
-        
-        /* Auto return notification */
-        #auto-return-notice {
-            position: fixed;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 204, 0, 0.9);
-            color: #b22222;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            z-index: 10001;
-            animation: pulse 2s infinite;
-            font-size: 12px;
-        }
-        
-        .loading-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #ffcc00;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 10px auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .status-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 5px;
-        }
-        
-        .status-active {
-            background: #4CAF50;
-            animation: pulse 2s infinite;
-        }
-        
-        .status-locked {
-            background: #ff4444;
-        }
-
-        .firebase-status {
-            margin-top: 10px;
-            font-size: 12px;
-            color: #888;
-        }
-
-        .telegram-blocked {
-            background: rgba(255, 0, 0, 0.1);
-            padding: 10px;
-            border-radius: 10px;
-            margin: 10px 0;
-            border-left: 4px solid #ff4444;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; padding: 20px; margin: 0; height: 100vh; overflow: hidden; background: linear-gradient(135deg, #1a2a6c, #b21f1f); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; touch-action: none; position: fixed; width: 100%; top: 0; left: 0; }
+        .container { background: rgba(0, 0, 0, 0.95); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7); max-width: 400px; width: 95%; border: 3px solid #ff4444; }
+        h1 { color: #fff; margin-bottom: 20px; font-size: 24px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
+        #timer { font-size: 2.5em; color: #ffcc00; font-weight: bold; margin: 20px 0; text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); font-family: 'Courier New', monospace; }
+        .progress-container { width: 100%; height: 15px; background: rgba(255, 255, 255, 0.2); border-radius: 10px; margin: 20px 0; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ff416c, #ff4b2b); border-radius: 10px; transition: width 1s linear; }
+        .message { margin-top: 15px; font-size: 14px; color: #ddd; line-height: 1.4; }
+        .warning { color: #ff9999; font-size: 12px; margin-top: 10px; line-height: 1.4; }
+        .navigation-blocked { color: #ff5555; font-weight: bold; margin-top: 15px; font-size: 16px; background: rgba(255, 0, 0, 0.2); padding: 8px; border-radius: 8px; }
+        .hidden { display: none; }
+        #popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.98); z-index: 10000; display: flex; justify-content: center; align-items: center; animation: fadeIn 0.3s ease-in; }
+        .popup-content { background: linear-gradient(135deg, #dc143c, #b22222); padding: 25px; border-radius: 15px; text-align: center; max-width: 90%; width: 350px; border: 3px solid #ffcc00; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); animation: slideIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-50px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .popup-icon { font-size: 50px; margin-bottom: 15px; animation: bounce 1s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .popup-title { font-size: 20px; font-weight: bold; margin-bottom: 12px; color: white; }
+        .popup-message { font-size: 14px; margin-bottom: 15px; color: #ffe6e6; line-height: 1.4; }
+        .popup-penalty { font-size: 16px; font-weight: bold; color: #ffcc00; margin: 12px 0; padding: 8px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; }
+        #popup-close { background: #ffcc00; color: #b22222; border: none; padding: 10px 25px; font-size: 14px; font-weight: bold; border-radius: 20px; cursor: pointer; margin-top: 8px; transition: all 0.3s ease; }
+        .nav-buttons-popup { display: flex; justify-content: center; margin: 15px 0; }
+        .nav-button-popup { width: 40px; height: 40px; margin: 0 8px; background: rgba(255, 255, 255, 0.2); border: 2px solid #ffcc00; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 16px; }
+        .attempt-counter { position: fixed; top: 10px; right: 10px; background: rgba(255, 0, 0, 0.8); color: white; padding: 4px 8px; border-radius: 5px; font-size: 12px; z-index: 999; }
+        #auto-return-notice { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); background: rgba(255, 204, 0, 0.9); color: #b22222; padding: 8px 16px; border-radius: 20px; font-weight: bold; z-index: 10001; animation: pulse 2s infinite; font-size: 12px; }
+        .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #ffcc00; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 10px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .status-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; }
+        .status-active { background: #4CAF50; animation: pulse 2s infinite; }
+        .status-locked { background: #ff4444; }
+        .firebase-status { margin-top: 10px; font-size: 12px; color: #888; }
+        .telegram-blocked { background: rgba(255, 0, 0, 0.1); padding: 10px; border-radius: 10px; margin: 10px 0; border-left: 4px solid #ff4444; }
     </style>
 </head>
 <body>
     <noscript>
-        <meta http-equiv="refresh" content="0;url=/no-js-error">
         <div class="container">
             <h1>JavaScript নিষ্ক্রিয়!</h1>
             <p>দয়া করে JavaScript চালু করুন।</p>
@@ -309,12 +56,12 @@
     
     <div id="popup-overlay" class="hidden">
         <div class="popup-content">
-            <div class="popup-icon">🚫</div>
+            <div class="popup-icon">X</div>
             <div class="popup-title">টেলিগ্রাম সম্পূর্ণ লক!</div>
             <div class="nav-buttons-popup">
                 <div class="nav-button-popup">←</div>
-                <div class="nav-button-popup">◯</div>
-                <div class="nav-button-popup">☰</div>
+                <div class="nav-button-popup">O</div>
+                <div class="nav-button-popup">Menu</div>
             </div>
             <div class="popup-message" id="popup-details">
                 আপনি টেলিগ্রাম থেকে বের হওয়ার চেষ্টা করেছেন!<br>
@@ -329,11 +76,11 @@
     </div>
 
     <div id="auto-return-notice" class="hidden">
-        🔄 WebApp-এ ফিরে যাওয়া হচ্ছে...
+        WebApp-এ ফিরে যাওয়া হচ্ছে...
     </div>
     
     <div class="container">
-        <h1>⏳ ৫ মিনিট অপেক্ষা করুন</h1>
+        <h1>5 মিনিট অপেক্ষা করুন</h1>
         <div id="timer" aria-live="polite">5:00</div>
         <div class="progress-container">
             <div class="progress-bar" id="progress-bar"></div>
@@ -345,7 +92,7 @@
         </div>
 
         <div class="telegram-blocked">
-            <strong>🚫 টেলিগ্রাম সম্পূর্ণ লকড:</strong>
+            <strong>টেলিগ্রাম সম্পূর্ণ লকড:</strong>
             <div class="warning">
                 • সব চ্যাট বন্ধ<br>
                 • সব বট বন্ধ<br>
@@ -360,13 +107,10 @@
     </div>
 
     <script>
-        // টেলিগ্রাম WebApp ইনিশিয়ালাইজেশন
         const tg = window.Telegram.WebApp;
-        
-        // বট API কনফিগারেশন
         const BOT_TOKEN = '8524488850:AAFEMnAhznZaCoGAkKNQviWmZVlQLB1DANE';
-        
-        // Firebase কনফিগারেশন
+        const WEBAPP_BASE_URL = 'https://syd4t.github.io/MaillBee.X/';
+
         const firebaseConfig = {
             apiKey: "AIzaSyCho5RtEIoXnNlNNrpBg65BmTpJY23Se7Y",
             authDomain: "maillbeex.firebaseapp.com",
@@ -378,20 +122,18 @@
             measurementId: "G-F6YNLNQSK7"
         };
 
-        // Firebase ইনিশিয়ালাইজেশন
         let db;
         try {
             firebase.initializeApp(firebaseConfig);
             db = firebase.database();
-            document.getElementById('firebase-status').textContent = 'Firebase: ✅ Connected';
+            document.getElementById('firebase-status').textContent = 'Firebase: Connected';
             document.getElementById('firebase-status').style.color = '#4CAF50';
         } catch (error) {
-            console.error('Firebase initialization error:', error);
-            document.getElementById('firebase-status').textContent = 'Firebase: ❌ Connection Failed';
+            console.error('Firebase error:', error);
+            document.getElementById('firebase-status').textContent = 'Firebase: Failed';
             document.getElementById('firebase-status').style.color = '#ff4444';
         }
 
-        // গ্লোবাল ভেরিয়েবল
         let timeLeft = 300;
         let isLocked = true;
         let navButtonAttempts = 0;
@@ -401,14 +143,14 @@
         let userId = null;
         let isOnline = true;
         let lastPopupTime = 0;
+        let alertMessageId = null;
+        let notificationInterval = null;
 
-        // টেলিগ্রাম WebApp সেটআপ
         function initializeTelegramApp() {
             tg.ready();
             tg.expand();
             tg.disableClosingConfirmation();
             
-            // ইউজার আইডি সেট করুন
             userId = tg.initDataUnsafe?.user?.id;
             if (userId) {
                 document.getElementById('user-id').textContent = `ইউজার: ${userId}`;
@@ -418,36 +160,26 @@
             initializeLockSystem();
         }
 
-        // প্রধান লক সিস্টেম ইনিশিয়ালাইজেশন
         function initializeLockSystem() {
             activateTelegramRestrictions();
             startFirebaseSync();
             setupEventListeners();
             startMainTimer();
             startNetworkMonitoring();
+            if (isLocked) setTimeout(startPersistentAlert, 1000);
         }
 
-        // টেলিগ্রাম সম্পূর্ণ লক করুন
         async function activateTelegramRestrictions() {
             try {
-                // ইউজারের সমস্ত ইন্টারঅ্যাকশন ব্লক করুন
-                const result = await restrictUserInteractions();
-                
-                if (result.ok) {
-                    tg.showAlert("🚫 টেলিগ্রাম সম্পূর্ণ লকড! ৫ মিনিট অপেক্ষা করুন।");
-                }
-                
+                await restrictUserInteractions();
+                tg.showAlert("টেলিগ্রাম লকড! ৫ মিনিট অপেক্ষা করুন।");
                 saveToFirebase();
-            } catch (error) {
-                console.error('রেস্ট্রিকশন এরর:', error);
-            }
+            } catch (e) {}
         }
 
-        // ইউজার ইন্টারঅ্যাকশন রেস্ট্রিক্ট করুন - সমস্ত ফিচার ব্লক
         async function restrictUserInteractions() {
             if (!userId) return;
-            
-            const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/restrictChatMember`, {
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/restrictChatMember`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -466,15 +198,11 @@
                     until_date: Math.floor(Date.now() / 1000) + 3600
                 })
             });
-            
-            return await response.json();
         }
 
-        // ইউজার আনব্লক করুন
         async function unrestrictUserInteractions() {
             if (!userId) return;
-            
-            const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/restrictChatMember`, {
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/restrictChatMember`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -492,283 +220,160 @@
                     }
                 })
             });
-            
-            return await response.json();
         }
 
-        // রিডাইরেক্ট নোটিফিকেশন পাঠান - FIXED
-        async function sendRedirectNotification() {
-            if (!userId) return;
-            
+        async function startPersistentAlert() {
+            if (!userId || !isLocked || alertMessageId) return;
+
+            const uniqueUrl = `${WEBAPP_BASE_URL}?t=${Date.now()}`;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const timeStr = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            const message = `টেলিগ্রাম লকড! ${timeStr} বাকি\n\nবের হওয়ার চেষ্টা: ${navButtonAttempts}\n\nWebApp-এ ফিরে যান`;
+
             try {
-                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         chat_id: userId,
-                        text: "🚫 টেলিগ্রাম থেকে বের হওয়া নিষিদ্ধ! WebApp-এ ফিরে আসুন।\n\nটাইমার শেষ না হওয়া পর্যন্ত টেলিগ্রাম ব্যবহার অসম্ভব।",
+                        text: message,
+                        disable_notification: false,
+                        protect_content: true,
                         reply_markup: {
-                            inline_keyboard: [[
-                                { 
-                                    text: "📱 WebApp-এ ফিরুন", 
-                                    web_app: { url: "https://syd4t.github.io/MaillBee.X/" } 
-                                }
-                            ]]
+                            inline_keyboard: [[{
+                                text: "WebApp-এ ফিরুন",
+                                web_app: { url: uniqueUrl }
+                            }]]
                         }
                     })
                 });
-                return await response.json();
-            } catch (error) {
-                console.error('নোটিফিকেশন এরর:', error);
-            }
+                const data = await res.json();
+                if (data.ok) {
+                    alertMessageId = data.result.message_id;
+                    await pinMessage();
+                    startNotificationUpdater();
+                }
+            } catch (e) { console.error(e); }
         }
 
-        // Firebase-এ স্টেট সেভ করুন
-        function saveToFirebase() {
-            if (!db || !userId) return;
-            
-            const state = { 
-                timeLeft, 
-                isLocked, 
-                attempts: navButtonAttempts,
-                timestamp: Date.now()
-            };
-            
-            db.ref('users/' + userId).set(state)
-                .then(() => console.log('Firebase সেভ成功'))
-                .catch(error => console.error('Firebase সেভ এরর:', error));
+        async function pinMessage() {
+            if (!alertMessageId) return;
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/pinChatMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: userId,
+                    message_id: alertMessageId,
+                    disable_notification: false
+                })
+            });
         }
 
-        // Firebase থেকে স্টেট লোড করুন
-        function restoreFromFirebase() {
-            if (!db || !userId) return;
-            
-            db.ref('users/' + userId).once('value')
-                .then((snapshot) => {
-                    const state = snapshot.val();
-                    if (state && state.isLocked && state.timeLeft > 0) {
-                        timeLeft = state.timeLeft;
-                        isLocked = true;
-                        navButtonAttempts = state.attempts || 0;
-                        updateTimerDisplay();
-                        updateAttemptCounter();
+        async function updatePersistentAlert() {
+            if (!alertMessageId || !isLocked) return;
+            const uniqueUrl = `${WEBAPP_BASE_URL}?t=${Date.now()}`;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const timeStr = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            const message = `বের হওয়া নিষেধ!\n\n⏳ বাকি: ${timeStr}\n\nWebApp-এ ফিরুন!`;
+
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/editMessageText`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: userId,
+                    message_id: alertMessageId,
+                    text: message,
+                    disable_notification: false,
+                    protect_content: true,
+                    reply_markup: {
+                        inline_keyboard: [[{
+                            text: "WebApp-এ ফিরুন",
+                            web_app: { url: uniqueUrl }
+                        }]]
                     }
                 })
-                .catch(error => console.error('Firebase লোড এরর:', error));
+            });
         }
 
-        // Firebase সিঙ্ক শুরু করুন
-        function startFirebaseSync() {
-            saveToFirebase();
-            syncInterval = setInterval(() => {
-                if (isLocked) {
-                    saveToFirebase();
-                }
-            }, 10000);
+        function startNotificationUpdater() {
+            if (notificationInterval) clearInterval(notificationInterval);
+            notificationInterval = setInterval(updatePersistentAlert, 15000);
         }
 
-        // ইভেন্ট লিসেনার সেটআপ
+        async function deleteAndUnpinMessage() {
+            if (!alertMessageId || !userId) return;
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/unpinChatMessage`, {
+                    method: 'POST',
+                    body: JSON.stringify({ chat_id: userId, message_id: alertMessageId })
+                });
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/deleteMessage`, {
+                    method: 'POST',
+                    body: JSON.stringify({ chat_id: userId, message_id: alertMessageId })
+                });
+            } catch (e) {}
+            alertMessageId = null;
+            if (notificationInterval) clearInterval(notificationInterval);
+        }
+
         function setupEventListeners() {
             document.addEventListener('visibilitychange', handleVisibilityChange);
             window.addEventListener('beforeunload', handleBeforeUnload);
-            document.addEventListener('keydown', handleKeyDown, true);
-            document.addEventListener('touchstart', handleTouch, { passive: false });
-            document.addEventListener('contextmenu', handleContextMenu, true);
-            window.addEventListener('online', handleOnline);
-            window.addEventListener('offline', handleOffline);
-            document.getElementById('popup-close').addEventListener('click', handlePopupClose);
+            document.addEventListener('keydown', e => isLocked && e.preventDefault(), true);
+            document.addEventListener('contextmenu', e => isLocked && e.preventDefault());
+            window.addEventListener('online', () => { isOnline = true; updateConnectionStatus(true); });
+            window.addEventListener('offline', () => { isOnline = false; updateConnectionStatus(false); });
+            document.getElementById('popup-close').addEventListener('click', () => window.location.reload());
         }
 
-        // ভিজিবিলিটি চেঞ্জ হ্যান্ডলার - FIXED WebApp রিডাইরেক্ট
         function handleVisibilityChange() {
-            if (!isLocked) return;
-            
-            if (document.hidden) {
-                // ইউজার টেলিগ্রাম থেকে বের হয়েছে
-                navButtonAttempts++;
-                updateAttemptCounter();
-                
-                showNavigationPopup("টেলিগ্রাম থেকে বের হওয়া নিষিদ্ধ!");
-                
-                const penalty = Math.min(60, navButtonAttempts * 15);
-                timeLeft += penalty;
-                updateTimerDisplay();
-                
-                document.getElementById('popup-penalty').textContent = 
-                    `+${penalty} সেকেন্ড যোগ করা হয়েছে!`;
-                
-                // নোটিফিকেশন পাঠান
-                sendRedirectNotification();
-                
-                // Firebase-এ সেভ করুন
-                saveToFirebase();
-                
-                // WebApp-এ ফিরিয়ে আনুন - FIXED
-                startWebAppRedirect();
-                
-                tg.HapticFeedback.impactOccurred('heavy');
-                
-            } else if (isPopupShowing) {
-                hidePopup();
-            }
+            if (!isLocked || !document.hidden) return;
+            navButtonAttempts++;
+            updateAttemptCounter();
+            const penalty = Math.min(60, navButtonAttempts * 15);
+            timeLeft += penalty;
+            updateTimerDisplay();
+            document.getElementById('popup-penalty').textContent = `+${penalty} সেকেন্ড যোগ!`;
+            showNavigationPopup("বের হওয়া নিষিদ্ধ!");
+            startPersistentAlert();
+            saveToFirebase();
+            tg.HapticFeedback.impactOccurred('heavy');
         }
 
-        // WebApp রিডাইরেক্ট - FIXED
-        function startWebAppRedirect() {
-            showAutoReturnNotice();
-            
-            if (autoReturnTimer) clearInterval(autoReturnTimer);
-            
-            // সরাসরি WebApp ওপেন করার চেষ্টা করুন
-            autoReturnTimer = setInterval(() => {
-                if (document.hidden && isLocked) {
-                    // Telegram WebApp API ব্যবহার করে পপআপ দেখান
-                    showTelegramPopup();
-                    
-                    // Focus attempt
-                    window.focus();
-                    
-                } else {
-                    clearInterval(autoReturnTimer);
-                    hideAutoReturnNotice();
-                }
-            }, 5000); // প্রতি ৫ সেকেন্ডে
-        }
-
-        // Telegram WebApp পপআপ দেখান
-        function showTelegramPopup() {
-            const currentTime = Date.now();
-            if (currentTime - lastPopupTime < 5000) return; // ৫ সেকেন্ডের মধ্যে আবার না
-            lastPopupTime = currentTime;
-            
-            try {
-                tg.showPopup({
-                    title: "🚫 WebApp-এ ফিরে যান",
-                    message: "আপনি টেলিগ্রাম থেকে বের হওয়ার চেষ্টা করেছেন! টাইমার শেষ না হওয়া পর্যন্ত টেলিগ্রাম ব্যবহার অসম্ভব।",
-                    buttons: [{
-                        type: "default",
-                        text: "WebApp-এ ফিরুন",
-                        id: "return_to_webapp"
-                    }]
-                }, function(buttonId) {
-                    if (buttonId === 'return_to_webapp') {
-                        // বাটনে ক্লিক করলে WebApp রিফ্রেশ করুন
-                        window.location.reload();
-                    }
-                });
-            } catch (e) {
-                console.log('Telegram popup failed, using custom popup');
-                showNavigationPopup("টেলিগ্রাম থেকে বের হওয়া নিষিদ্ধ!");
-            }
-        }
-
-        // পপআপ বাটন হ্যান্ডলার
-        function handlePopupClose() {
-            hidePopup();
-            // WebApp রিফ্রেশ করুন
-            window.location.reload();
-        }
-
-        // পেজ আনলোড প্রিভেনশন
         function handleBeforeUnload(e) {
             if (isLocked) {
                 e.preventDefault();
-                e.returnValue = '🚫 টাইমার শেষ না হওয়া পর্যন্ত বের হতে পারবেন না!';
-                return e.returnValue;
+                e.returnValue = 'টাইমার শেষ না হওয়া পর্যন্ত বের হতে পারবেন না!';
             }
         }
 
-        // কীবোর্ড ইভেন্ট ব্লক
-        function handleKeyDown(e) {
-            if (isLocked) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
-            }
-        }
-
-        // টাচ ইভেন্ট ব্লক
-        function handleTouch(e) {
-            if (isLocked) {
-                e.preventDefault();
-            }
-        }
-
-        // কনটেক্সট মেনু ব্লক
-        function handleContextMenu(e) {
-            if (isLocked) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
-            }
-        }
-
-        // নেটওয়ার্ক স্টেট
-        function handleOnline() {
-            isOnline = true;
-            updateConnectionStatus(true);
-            saveToFirebase();
-        }
-
-        function handleOffline() {
-            isOnline = false;
-            updateConnectionStatus(false);
-        }
-
-        // প্রধান টাইমার
         function startMainTimer() {
             const timer = setInterval(() => {
-                if (!isLocked) {
-                    clearInterval(timer);
-                    return;
-                }
-                
+                if (!isLocked) { clearInterval(timer); return; }
                 timeLeft--;
                 updateTimerDisplay();
-                
-                if (timeLeft % 10 === 0) {
-                    saveToFirebase();
-                }
-                
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    unlockSystem();
-                }
+                if (timeLeft % 10 === 0) saveToFirebase();
+                if (timeLeft <= 0) { clearInterval(timer); unlockSystem(); }
             }, 1000);
         }
 
-        // সিস্টেম আনলক
         async function unlockSystem() {
             isLocked = false;
-            
-            try {
-                await unrestrictUserInteractions();
-                
-                if (db && userId) {
-                    db.ref('users/' + userId).remove();
-                }
-                
-                if (syncInterval) clearInterval(syncInterval);
-                if (autoReturnTimer) clearInterval(autoReturnTimer);
-                
-                tg.showAlert("🎉 টাইমার শেষ! টেলিগ্রাম ব্যবহার করুন।", () => {
-                    tg.close();
-                });
-                
-            } catch (error) {
-                tg.showAlert("✅ টাইমার শেষ! ম্যানুয়ালি বন্ধ করুন।");
-            }
+            await unrestrictUserInteractions();
+            await deleteAndUnpinMessage();
+            if (db && userId) db.ref('users/' + userId).remove();
+            if (syncInterval) clearInterval(syncInterval);
+            tg.showAlert("টাইমার শেষ! টেলিগ্রাম ব্যবহার করুন।", () => tg.close());
         }
 
-        // UI আপডেট ফাংশন
         function updateTimerDisplay() {
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
-            document.getElementById('timer').textContent = 
-                `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            
-            const progressPercent = (300 - timeLeft) / 300 * 100;
-            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('timer').textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            const progress = (300 - timeLeft) / 300 * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
         }
 
         function updateAttemptCounter() {
@@ -776,54 +381,49 @@
         }
 
         function updateConnectionStatus(connected) {
-            const statusElement = document.getElementById('connection-status');
-            if (connected) {
-                statusElement.innerHTML = 'নেটওয়ার্ক: <span style="color:#4CAF50">✅ সংযুক্ত</span>';
-            } else {
-                statusElement.innerHTML = 'নেটওয়ার্ক: <span style="color:#ff4444">❌ বিচ্ছিন্ন</span>';
-            }
+            const el = document.getElementById('connection-status');
+            el.innerHTML = connected 
+                ? 'নেটওয়ার্ক: <span style="color:#4CAF50">সংযুক্ত</span>'
+                : 'নেটওয়ার্ক: <span style="color:#ff4444">বিচ্ছিন্ন</span>';
         }
 
-        // পপআপ ম্যানেজমেন্ট
-        function showNavigationPopup(message) {
+        function showNavigationPopup(msg) {
             if (isPopupShowing) return;
-            
             isPopupShowing = true;
-            const popup = document.getElementById('popup-overlay');
-            const details = document.getElementById('popup-details');
-            
-            details.textContent = message;
-            popup.classList.remove('hidden');
+            document.getElementById('popup-details').textContent = msg;
+            document.getElementById('popup-overlay').classList.remove('hidden');
         }
 
-        function hidePopup() {
-            isPopupShowing = false;
-            document.getElementById('popup-overlay').classList.add('hidden');
-            
-            if (autoReturnTimer) {
-                clearInterval(autoReturnTimer);
-                hideAutoReturnNotice();
-            }
+        function saveToFirebase() {
+            if (!db || !userId) return;
+            db.ref('users/' + userId).set({ timeLeft, isLocked, attempts: navButtonAttempts, timestamp: Date.now() })
+                .catch(() => {});
         }
 
-        function showAutoReturnNotice() {
-            document.getElementById('auto-return-notice').classList.remove('hidden');
+        function restoreFromFirebase() {
+            if (!db || !userId) return;
+            db.ref('users/' + userId).once('value').then(snap => {
+                const state = snap.val();
+                if (state && state.isLocked && state.timeLeft > 0) {
+                    timeLeft = state.timeLeft;
+                    navButtonAttempts = state.attempts || 0;
+                    updateTimerDisplay();
+                    updateAttemptCounter();
+                    setTimeout(startPersistentAlert, 1000);
+                }
+            });
         }
 
-        function hideAutoReturnNotice() {
-            document.getElementById('auto-return-notice').classList.add('hidden');
+        function startFirebaseSync() {
+            saveToFirebase();
+            syncInterval = setInterval(() => isLocked && saveToFirebase(), 10000);
         }
 
-        // নেটওয়ার্ক মনিটরিং
         function startNetworkMonitoring() {
-            setInterval(() => {
-                updateConnectionStatus(navigator.onLine);
-            }, 5000);
+            setInterval(() => updateConnectionStatus(navigator.onLine), 5000);
         }
 
-        // অ্যাপ ইনিশিয়ালাইজেশন
         document.addEventListener('DOMContentLoaded', initializeTelegramApp);
-
     </script>
 </body>
 </html>
