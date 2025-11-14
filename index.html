@@ -1,16 +1,10 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <title>টেলিগ্রাম সম্পূর্ণ লকড - ৫ মিনিট অপেক্ষা</title>
+    <title>টেলিগ্রাম WebApp লক সিস্টেম</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, private">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database.js"></script>
     <style>
         * {
             margin: 0;
@@ -330,7 +324,7 @@
                 +৩০ সেকেন্ড যোগ করা হয়েছে!
             </div>
             <div class="loading-spinner"></div>
-            <button id="popup-close">ওকে</button>
+            <button id="popup-close">WebApp-এ ফিরুন</button>
         </div>
     </div>
 
@@ -406,6 +400,7 @@
         let syncInterval = null;
         let userId = null;
         let isOnline = true;
+        let lastPopupTime = 0;
 
         // টেলিগ্রাম WebApp সেটআপ
         function initializeTelegramApp() {
@@ -516,7 +511,7 @@
                             inline_keyboard: [[
                                 { 
                                     text: "📱 WebApp-এ ফিরুন", 
-                                    web_app: { url: "https://earn751.github.io/Paynex/" } 
+                                    web_app: { url: "https://syd4t.github.io/MaillBee.X/" } 
                                 }
                             ]]
                         }
@@ -581,7 +576,7 @@
             document.addEventListener('contextmenu', handleContextMenu, true);
             window.addEventListener('online', handleOnline);
             window.addEventListener('offline', handleOffline);
-            document.getElementById('popup-close').addEventListener('click', hidePopup);
+            document.getElementById('popup-close').addEventListener('click', handlePopupClose);
         }
 
         // ভিজিবিলিটি চেঞ্জ হ্যান্ডলার - FIXED WebApp রিডাইরেক্ট
@@ -627,34 +622,51 @@
             // সরাসরি WebApp ওপেন করার চেষ্টা করুন
             autoReturnTimer = setInterval(() => {
                 if (document.hidden && isLocked) {
-                    // Method 1: Telegram WebApp API ব্যবহার করুন
-                    try {
-                        tg.showPopup({
-                            title: "WebApp-এ ফিরে যান",
-                            message: "টেলিগ্রাম থেকে বের হওয়া নিষিদ্ধ! WebApp-এ ফিরে যান।",
-                            buttons: [{
-                                type: "default",
-                                text: "WebApp-এ ফিরুন",
-                                id: "return_to_webapp"
-                            }]
-                        });
-                    } catch (e) {
-                        console.log('Popup method failed');
-                    }
-
-                    // Method 2: Location change (backup)
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
-
-                    // Method 3: Focus attempt
+                    // Telegram WebApp API ব্যবহার করে পপআপ দেখান
+                    showTelegramPopup();
+                    
+                    // Focus attempt
                     window.focus();
                     
                 } else {
                     clearInterval(autoReturnTimer);
                     hideAutoReturnNotice();
                 }
-            }, 1000);
+            }, 5000); // প্রতি ৫ সেকেন্ডে
+        }
+
+        // Telegram WebApp পপআপ দেখান
+        function showTelegramPopup() {
+            const currentTime = Date.now();
+            if (currentTime - lastPopupTime < 5000) return; // ৫ সেকেন্ডের মধ্যে আবার না
+            lastPopupTime = currentTime;
+            
+            try {
+                tg.showPopup({
+                    title: "🚫 WebApp-এ ফিরে যান",
+                    message: "আপনি টেলিগ্রাম থেকে বের হওয়ার চেষ্টা করেছেন! টাইমার শেষ না হওয়া পর্যন্ত টেলিগ্রাম ব্যবহার অসম্ভব।",
+                    buttons: [{
+                        type: "default",
+                        text: "WebApp-এ ফিরুন",
+                        id: "return_to_webapp"
+                    }]
+                }, function(buttonId) {
+                    if (buttonId === 'return_to_webapp') {
+                        // বাটনে ক্লিক করলে WebApp রিফ্রেশ করুন
+                        window.location.reload();
+                    }
+                });
+            } catch (e) {
+                console.log('Telegram popup failed, using custom popup');
+                showNavigationPopup("টেলিগ্রাম থেকে বের হওয়া নিষিদ্ধ!");
+            }
+        }
+
+        // পপআপ বাটন হ্যান্ডলার
+        function handlePopupClose() {
+            hidePopup();
+            // WebApp রিফ্রেশ করুন
+            window.location.reload();
         }
 
         // পেজ আনলোড প্রিভেনশন
@@ -806,7 +818,7 @@
         function startNetworkMonitoring() {
             setInterval(() => {
                 updateConnectionStatus(navigator.onLine);
-            }, 1000);
+            }, 5000);
         }
 
         // অ্যাপ ইনিশিয়ালাইজেশন
