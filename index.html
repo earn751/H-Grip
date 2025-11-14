@@ -1,379 +1,468 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <title>টেলিগ্রাম WebApp লক সিস্টেম</title>
+    <title>টেলিগ্রাম WebApp উন্নত লক সিস্টেম</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Monetag Reward SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='10087307' data-sdk='show_10087307'></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; padding: 20px; margin: 0; height: 100vh; overflow: hidden; background: linear-gradient(135deg, #1a2a6c, #b21f1f); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; touch-action: none; position: fixed; width: 100%; top: 0; left: 0; }
-        .container { background: rgba(0, 0, 0, 0.95); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7); max-width: 400px; width: 95%; border: 3px solid #ff4444; }
-        h1 { color: #fff; margin-bottom: 20px; font-size: 24px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
-        #timer { font-size: 2.5em; color: #ffcc00; font-weight: bold; margin: 20px 0; text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); font-family: 'Courier New', monospace; }
-        .progress-container { width: 100%; height: 15px; background: rgba(255, 255, 255, 0.2); border-radius: 10px; margin: 20px 0; overflow: hidden; }
-        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ff416c, #ff4b2b); border-radius: 10px; transition: width 1s linear; }
-        .message { margin-top: 15px; font-size: 14px; color: #ddd; line-height: 1.4; }
-        .warning { color: #ff9999; font-size: 12px; margin-top: 10px; line-height: 1.4; }
-        .navigation-blocked { color: #ff5555; font-weight: bold; margin-top: 15px; font-size: 16px; background: rgba(255, 0, 0, 0.2); padding: 8px; border-radius: 8px; }
-        .hidden { display: none; }
-        #popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.98); z-index: 10000; display: flex; justify-content: center; align-items: center; animation: fadeIn 0.3s ease-in; }
-        .popup-content { background: linear-gradient(135deg, #dc143c, #b22222); padding: 25px; border-radius: 15px; text-align: center; max-width: 90%; width: 350px; border: 3px solid #ffcc00; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); animation: slideIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-50px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        .popup-icon { font-size: 50px; margin-bottom: 15px; animation: bounce 1s infinite; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        .popup-title { font-size: 20px; font-weight: bold; margin-bottom: 12px; color: white; }
-        .popup-message { font-size: 14px; margin-bottom: 15px; color: #ffe6e6; line-height: 1.4; }
-        .popup-penalty { font-size: 16px; font-weight: bold; color: #ffcc00; margin: 12px 0; padding: 8px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; }
-        #popup-close { background: #ffcc00; color: #b22222; border: none; padding: 10px 25px; font-size: 14px; font-weight: bold; border-radius: 20px; cursor: pointer; margin-top: 8px; transition: all 0.3s ease; }
-        .nav-buttons-popup { display: flex; justify-content: center; margin: 15px 0; }
-        .nav-button-popup { width: 40px; height: 40px; margin: 0 8px; background: rgba(255, 255, 255, 0.2); border: 2px solid #ffcc00; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 16px; }
-        .attempt-counter { position: fixed; top: 10px; right: 10px; background: rgba(255, 0, 0, 0.8); color: white; padding: 4px 8px; border-radius: 5px; font-size: 12px; z-index: 999; }
-        #auto-return-notice { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); background: rgba(255, 204, 0, 0.9); color: #b22222; padding: 8px 16px; border-radius: 20px; font-weight: bold; z-index: 10001; animation: pulse 2s infinite; font-size: 12px; }
-        .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #ffcc00; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 10px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .status-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; }
-        .status-active { background: #4CAF50; animation: pulse 2s infinite; }
-        .status-locked { background: #ff4444; }
-        .firebase-status { margin-top: 10px; font-size: 12px; color: #888; }
-        .telegram-blocked { background: rgba(255, 0, 0, 0.1); padding: 10px; border-radius: 10px; margin: 10px 0; border-left: 4px solid #ff4444; }
-        .notification-status { background: rgba(255, 204, 0, 0.2); padding: 8px; border-radius: 8px; margin: 10px 0; font-size: 12px; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            user-select: none; 
+            -webkit-user-select: none; 
+            -moz-user-select: none; 
+            -ms-user-select: none; 
+            -webkit-tap-highlight-color: transparent; 
+            -webkit-touch-callout: none; 
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            text-align: center; 
+            height: 100vh; 
+            overflow: hidden; 
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f); 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            touch-action: none; 
+            position: fixed; 
+            width: 100%; 
+            top: 0; 
+            left: 0; 
+            padding: 20px;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        #timer { 
+            font-size: 4em; 
+            color: #ffcc00; 
+            font-weight: bold; 
+            margin: 10px 0; 
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); 
+            font-family: 'Courier New', monospace; 
+            letter-spacing: 2px;
+        }
+        
+        .progress-container { 
+            width: 100%; 
+            height: 15px; 
+            background: rgba(255, 255, 255, 0.2); 
+            border-radius: 10px; 
+            margin: 10px 0; 
+            overflow: hidden; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .progress-bar { 
+            height: 100%; 
+            width: 0%; 
+            background: linear-gradient(90deg, #ff416c, #ff4b2b); 
+            border-radius: 10px; 
+            transition: width 1s linear; 
+            box-shadow: 0 0 10px rgba(255, 65, 108, 0.7);
+        }
+        
+        .info-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            width: 100%;
+            margin-top: 10px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+        
+        .hidden { 
+            display: none; 
+        }
+        
+        #force-close-warning { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.95); 
+            color: #ff4444; 
+            font-size: 1.5em; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            flex-direction: column; 
+            z-index: 9999; 
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .warning-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        .penalty-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 68, 68, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            animation: slideDown 0.5s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from { top: -50px; opacity: 0; }
+            to { top: 20px; opacity: 1; }
+        }
+        
+        .ad-indicator {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            z-index: 100;
+        }
+        
+        .status-message {
+            margin-top: 10px;
+            font-size: 1.1em;
+            color: #ffcc00;
+        }
     </style>
 </head>
 <body>
-    <noscript>
-        <div class="container">
-            <h1>JavaScript নিষ্ক্রিয়!</h1>
-            <p>দয়া করে JavaScript চালু করুন।</p>
-        </div>
-    </noscript>
-    
-    <div class="attempt-counter" id="attempt-counter">
-        প্রচেষ্টা: <span id="attempt-count">0</span>
-    </div>
-    
-    <div id="popup-overlay" class="hidden">
-        <div class="popup-content">
-            <div class="popup-icon">X</div>
-            <div class="popup-title">টেলিগ্রাম সম্পূর্ণ লক!</div>
-            <div class="nav-buttons-popup">
-                <div class="nav-button-popup">←</div>
-                <div class="nav-button-popup">O</div>
-                <div class="nav-button-popup">Menu</div>
-            </div>
-            <div class="popup-message" id="popup-details">
-                আপনি টেলিগ্রাম থেকে বের হওয়ার চেষ্টা করেছেন!<br>
-                স্বয়ংক্রিয়ভাবে WebApp-এ ফিরে যাওয়া হচ্ছে...
-            </div>
-            <div class="popup-penalty" id="popup-penalty">
-                +৩০ সেকেন্ড যোগ করা হয়েছে!
-            </div>
-            <div class="loading-spinner"></div>
-            <button id="popup-close">WebApp-এ ফিরুন</button>
-        </div>
-    </div>
-
-    <div id="auto-return-notice" class="hidden">
-        WebApp-এ ফিরে যাওয়া হচ্ছে...
-    </div>
-    
     <div class="container">
-        <h1>5 মিনিট অপেক্ষা করুন</h1>
-        <div id="timer" aria-live="polite">5:00</div>
+        <h1>লক সিস্টেম সক্রিয়</h1>
+        <div id="timer" aria-live="polite">00:00</div>
         <div class="progress-container">
             <div class="progress-bar" id="progress-bar"></div>
         </div>
+        <div class="status-message" id="status-message">টাইমার শেষ না হওয়া পর্যন্ত অপেক্ষা করুন...</div>
         
-        <div class="message">
-            <span class="status-indicator status-active"></span>
-            সিস্টেম সক্রিয়: <span id="user-id">লোড হচ্ছে...</span>
-        </div>
-
-        <div class="telegram-blocked">
-            <strong>টেলিগ্রাম সম্পূর্ণ লকড:</strong>
-            <div class="warning">
-                • সব চ্যাট বন্ধ<br>
-                • সব বট বন্ধ<br>
-                • গ্রুপ/চ্যানেল বন্ধ<br>
-                • কোনো মেসেজ পাঠানো যাবে না
+        <div class="info-panel">
+            <div class="info-item">
+                <span>মোট সময়:</span>
+                <span id="total-time">00:00</span>
+            </div>
+            <div class="info-item">
+                <span>অবশিষ্ট সময়:</span>
+                <span id="remaining-time">00:00</span>
+            </div>
+            <div class="info-item">
+                <span>পেনাল্টি সময়:</span>
+                <span id="penalty-time">00:00</span>
+            </div>
+            <div class="info-item">
+                <span>অ্যাড প্রদর্শন:</span>
+                <span id="ad-count">0</span>
             </div>
         </div>
-        
-        <div class="notification-status" id="notification-status">
-            নোটিফিকেশন: সক্রিয়
-        </div>
-        
-        <p class="navigation-blocked">টাইমার শেষ না হওয়া পর্যন্ত টেলিগ্রাম ব্যবহার অসম্ভব</p>
-        <p class="warning" id="connection-status">নেটওয়ার্ক: চেক করা হচ্ছে...</p>
-        <p class="firebase-status" id="firebase-status">Firebase: Connecting...</p>
     </div>
+
+    <!-- ফোর্স ক্লোজ ওয়ার্নিং -->
+    <div id="force-close-warning" class="hidden">
+        <div class="warning-icon">⚠️</div>
+        <h2>অ্যাপ বন্ধ করা যাবে না!</h2>
+        <p>টাইমার শেষ না হওয়া পর্যন্ত বের হওয়া নিষেধ।</p>
+        <p style="margin-top: 20px; font-size: 0.8em; color: #ff9999;">আপনার এই প্রচেষ্টার জন্য অতিরিক্ত সময় যোগ করা হয়েছে।</p>
+    </div>
+    
+    <!-- পেনাল্টি নোটিফিকেশন -->
+    <div id="penalty-notification" class="penalty-notification hidden"></div>
+    
+    <!-- অ্যাড ইন্ডিকেটর -->
+    <div id="ad-indicator" class="ad-indicator hidden">অ্যাড চলছে...</div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        const BOT_TOKEN = '8524488850:AAFEMnAhznZaCoGAkKNQviWmZVlQLB1DANE';
-        const WEBAPP_BASE_URL = 'https://syd4t.github.io/MaillBee.X/';
-
-        let db;
-        try {
-            firebase.initializeApp({
-                apiKey: "AIzaSyCho5RtEIoXnNlNNrpBg65BmTpJY23Se7Y",
-                authDomain: "maillbeex.firebaseapp.com",
-                databaseURL: "https://maillbeex-default-rtdb.firebaseio.com",
-                projectId: "maillbeex",
-                storageBucket: "maillbeex.firebasestorage.app",
-                messagingSenderId: "5938669413",
-                appId: "1:5938669413:web:34b6bbbbb0e81628a2a38c",
-                measurementId: "G-F6YNLNQSK7"
-            });
-            db = firebase.database();
-            document.getElementById('firebase-status').textContent = 'Firebase: Connected';
-            document.getElementById('firebase-status').style.color = '#4CAF50';
-        } catch (e) {
-            document.getElementById('firebase-status').textContent = 'Firebase: Failed';
-            document.getElementById('firebase-status').style.color = '#ff4444';
-        }
-
-        let timeLeft = 300;
+        let timeLeft = 0;
+        let totalTime = 0;
+        let penaltyTime = 0;
         let isLocked = true;
-        let navButtonAttempts = 0;
-        let isPopupShowing = false;
-        let syncInterval = null;
-        let userId = null;
-        let alertMessageId = null;
-        let notificationInterval = null;
+        let adInterval = null;
+        let adCount = 0;
+        let lastVisibilityTime = Date.now();
+        let timerInterval = null;
+        let isAdShowing = false;
 
-        function initializeTelegramApp() {
-            tg.ready();
-            tg.expand();
-            tg.disableClosingConfirmation();
-            userId = tg.initDataUnsafe?.user?.id;
-            if (userId) {
-                document.getElementById('user-id').textContent = `ইউজার: ${userId}`;
-                restoreFromFirebase();
-            }
-            initializeLockSystem();
+        // র‍্যান্ডম ৫-১০০ মিনিট
+        function getRandomTime() {
+            return Math.floor(Math.random() * (100 - 5 + 1) + 5) * 60;
         }
 
-        function initializeLockSystem() {
-            activateTelegramRestrictions();
-            startFirebaseSync();
-            setupEventListeners();
-            startMainTimer();
-            startNetworkMonitoring();
-            if (isLocked) setTimeout(startPersistentAlert, 1000);
-        }
+        // টাইমার শুরু
+        function startTimer() {
+            totalTime = getRandomTime();
+            timeLeft = totalTime;
+            updateTimerDisplay();
 
-        async function activateTelegramRestrictions() {
-            try {
-                await restrictUserInteractions();
-                tg.showAlert("টেলিগ্রাম লকড! ৫ মিনিট অপেক্ষা করুন।");
-                saveToFirebase();
-            } catch (e) {}
-        }
-
-        async function restrictUserInteractions() {
-            if (!userId) return;
-            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/restrictChatMember`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: userId,
-                    user_id: userId,
-                    permissions: {
-                        can_send_messages: false,
-                        can_send_media_messages: false,
-                        can_send_polls: false,
-                        can_send_other_messages: false,
-                        can_add_web_page_previews: false,
-                        can_change_info: false,
-                        can_invite_users: false,
-                        can_pin_messages: false
-                    },
-                    until_date: Math.floor(Date.now() / 1000) + 3600
-                })
-            });
-        }
-
-        async function unrestrictUserInteractions() {
-            if (!userId) return;
-            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/restrictChatMember`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: userId,
-                    user_id: userId,
-                    permissions: {
-                        can_send_messages: true,
-                        can_send_media_messages: true,
-                        can_send_polls: true,
-                        can_send_other_messages: true,
-                        can_add_web_page_previews: true,
-                        can_change_info: true,
-                        can_invite_users: true,
-                        can_pin_messages: true
-                    }
-                })
-            });
-        }
-
-        // নতুন নোটিফিকেশন সিস্টেম
-        async function startPersistentAlert() {
-            if (!userId || !isLocked) return;
-            await sendNewAlertMessage();
-            if (notificationInterval) clearInterval(notificationInterval);
-            notificationInterval = setInterval(sendNewAlertMessage, 15000);
-        }
-
-        async function sendNewAlertMessage() {
-            if (!userId || !isLocked) return;
-
-            const uniqueUrl = `${WEBAPP_BASE_URL}?user=${userId}&t=${Date.now()}`;
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            const timeText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            const text = `টেলিগ্রাম লকড!\n\nবাকি: ${timeText}\n\nWebApp-এ ফিরুন!`;
-
-            try {
-                if (alertMessageId) {
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/deleteMessage`, {
-                        method: 'POST',
-                        body: JSON.stringify({ chat_id: userId, message_id: alertMessageId })
-                    }).catch(() => {});
+            timerInterval = setInterval(() => {
+                if (!isLocked) {
+                    clearInterval(timerInterval);
+                    tg.close();
+                    return;
                 }
 
-                const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: userId,
-                        text: text,
-                        disable_notification: false,
-                        protect_content: true,
-                        reply_markup: {
-                            inline_keyboard: [[{ text: "WebApp-এ ফিরুন", web_app: { url: uniqueUrl } }]]
-                        }
-                    })
-                });
-
-                const data = await res.json();
-                if (data.ok) {
-                    alertMessageId = data.result.message_id;
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/pinChatMessage`, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            chat_id: userId,
-                            message_id: alertMessageId,
-                            disable_notification: false
-                        })
-                    });
-                }
-            } catch (e) { console.error(e); }
-        }
-
-        function setupEventListeners() {
-            document.addEventListener('visibilitychange', () => {
-                if (!isLocked || !document.hidden) return;
-                navButtonAttempts++;
-                updateAttemptCounter();
-                const penalty = Math.min(60, navButtonAttempts * 15);
-                timeLeft += penalty;
-                updateTimerDisplay();
-                document.getElementById('popup-penalty').textContent = `+${penalty} সেকেন্ড যোগ!`;
-                showNavigationPopup("বের হওয়া নিষিদ্ধ!");
-                startPersistentAlert();
-                saveToFirebase();
-                tg.HapticFeedback.impactOccurred('heavy');
-            });
-            window.addEventListener('beforeunload', e => isLocked && (e.preventDefault(), e.returnValue = ''));
-            document.addEventListener('keydown', e => isLocked && e.preventDefault(), true);
-            document.addEventListener('contextmenu', e => isLocked && e.preventDefault());
-            window.addEventListener('online', () => updateConnectionStatus(true));
-            window.addEventListener('offline', () => updateConnectionStatus(false));
-            document.getElementById('popup-close').addEventListener('click', () => window.location.reload());
-        }
-
-        function startMainTimer() {
-            const timer = setInterval(() => {
-                if (!isLocked) { clearInterval(timer); return; }
                 timeLeft--;
                 updateTimerDisplay();
-                if (timeLeft % 10 === 0) saveToFirebase();
-                if (timeLeft <= 0) { clearInterval(timer); unlockSystem(); }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    unlockSystem();
+                }
             }, 1000);
         }
 
-        async function unlockSystem() {
-            isLocked = false;
-            await unrestrictUserInteractions();
-            if (notificationInterval) clearInterval(notificationInterval);
-            if (alertMessageId && userId) {
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/deleteMessage`, {
-                    method: 'POST',
-                    body: JSON.stringify({ chat_id: userId, message_id: alertMessageId })
-                }).catch(() => {});
-            }
-            alertMessageId = null;
-            if (db && userId) db.ref('users/' + userId).remove();
-            if (syncInterval) clearInterval(syncInterval);
-            tg.showAlert("টাইমার শেষ! টেলিগ্রাম ব্যবহার করুন।", () => tg.close());
-        }
-
+        // UI আপডেট
         function updateTimerDisplay() {
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
-            document.getElementById('timer').textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            const progress = (300 - timeLeft) / 300 * 100;
-            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            const progress = ((totalTime - timeLeft) / totalTime) * 100;
+            document.getElementById('progress-bar').style.width = `${Math.min(progress, 100)}%`;
+            
+            // তথ্য প্যানেল আপডেট
+            document.getElementById('total-time').textContent = formatTime(totalTime);
+            document.getElementById('remaining-time').textContent = formatTime(timeLeft);
+            document.getElementById('penalty-time').textContent = formatTime(penaltyTime);
+            document.getElementById('ad-count').textContent = adCount;
+        }
+        
+        // সময় ফরম্যাটিং
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
 
-        function updateAttemptCounter() {
-            document.getElementById('attempt-count').textContent = navButtonAttempts;
+        // রিওয়ার্ড এড
+        function showRewardAd() {
+            if (isAdShowing) return;
+            
+            isAdShowing = true;
+            document.getElementById('ad-indicator').classList.remove('hidden');
+            
+            if (typeof show_10087307 === 'function') {
+                show_10087307('pop').then(() => {
+                    console.log("Ad Completed");
+                    adCount++;
+                    isAdShowing = false;
+                    document.getElementById('ad-indicator').classList.add('hidden');
+                }).catch(e => {
+                    console.log("Ad Closed/Error", e);
+                    isAdShowing = false;
+                    document.getElementById('ad-indicator').classList.add('hidden');
+                });
+            } else {
+                // SDK না থাকলে সিমুলেট করা
+                setTimeout(() => {
+                    adCount++;
+                    isAdShowing = false;
+                    document.getElementById('ad-indicator').classList.add('hidden');
+                }, 3000);
+            }
         }
 
-        function updateConnectionStatus(connected) {
-            const el = document.getElementById('connection-status');
-            el.innerHTML = connected 
-                ? 'নেটওয়ার্ক: <span style="color:#4CAF50">সংযুক্ত</span>'
-                : 'নেটওয়ার্ক: <span style="color:#ff4444">বিচ্ছিন্ন</span>';
-        }
-
-        function showNavigationPopup(msg) {
-            if (isPopupShowing) return;
-            isPopupShowing = true;
-            document.getElementById('popup-details').textContent = msg;
-            document.getElementById('popup-overlay').classList.remove('hidden');
-        }
-
-        function saveToFirebase() {
-            if (!db || !userId) return;
-            db.ref('users/' + userId).set({ timeLeft, isLocked, attempts: navButtonAttempts, timestamp: Date.now() });
-        }
-
-        function restoreFromFirebase() {
--enter code here>            if (!db || !userId) return;
-            db.ref('users/' + userId).once('value').then(snap => {
-                const state = snap.val();
-                if (state && state.isLocked && state.timeLeft > 0) {
-                    timeLeft = state.timeLeft;
-                    navButtonAttempts = state.attempts || 0;
-                    updateTimerDisplay();
-                    updateAttemptCounter();
-                    setTimeout(startPersistentAlert, 1000);
+        // অটো এড
+        function startAutoAds() {
+            showRewardAd();
+            adInterval = setInterval(() => {
+                if (!isLocked) {
+                    clearInterval(adInterval);
+                    return;
                 }
+                showRewardAd();
+            }, 30000); // 30 সেকেন্ডে একবার
+        }
+
+        // আনলক
+        function unlockSystem() {
+            isLocked = false;
+            if (adInterval) clearInterval(adInterval);
+            document.getElementById('status-message').textContent = "টাইমার শেষ! এখন বের হতে পারবেন।";
+            document.getElementById('status-message').style.color = "#4CAF50";
+            
+            tg.showAlert("টাইমার শেষ! এখন বের হতে পারবেন।", () => {
+                tg.close();
             });
         }
 
-        function startFirebaseSync() {
-            saveToFirebase();
-            syncInterval = setInterval(() => isLocked && saveToFirebase(), 10000);
+        // ব্যাক বাটন পুরোপুরি ব্লক
+        function disableBackButton() {
+            tg.BackButton.show();
+            tg.BackButton.onClick(() => {
+                tg.HapticFeedback.impactOccurred('heavy');
+                tg.showPopup({
+                    title: "বের হওয়া নিষিদ্ধ!",
+                    message: "টাইমার শেষ না হওয়া পর্যন্ত বের হতে পারবেন না।",
+                    buttons: [{ type: 'close' }]
+                });
+                addPenaltyTime(60, "ব্যাক বাটন ব্যবহারের জন্য");
+                showRewardAd();
+            });
         }
 
-        function startNetworkMonitoring() {
-            setInterval(() => updateConnectionStatus(navigator.onLine), 5000);
+        // পেনাল্টি সময় যোগ
+        function addPenaltyTime(seconds, reason) {
+            timeLeft += seconds;
+            totalTime += seconds;
+            penaltyTime += seconds;
+            
+            updateTimerDisplay();
+            
+            // পেনাল্টি নোটিফিকেশন দেখান
+            const notification = document.getElementById('penalty-notification');
+            notification.textContent = `+${formatTime(seconds)} পেনাল্টি (${reason})`;
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
         }
 
-        document.addEventListener('DOMContentLoaded', initializeTelegramApp);
+        // ফোর্স ক্লোজ/ইন্টерনেট অফ/ট্যাব ক্লোজ ডিটেক্ট
+        function detectAbnormalExit() {
+            // visibilitychange
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && isLocked) {
+                    const now = Date.now();
+                    if (now - lastVisibilityTime > 5000) { // 5 সেকেন্ডের বেশি লুকিয়ে থাকলে
+                        addPenaltyTime(120, "অ্যাপ থেকে বের হওয়ার জন্য");
+                    }
+                    lastVisibilityTime = now;
+                    showForceCloseWarning();
+                    tg.HapticFeedback.impactOccurred('heavy');
+                    showRewardAd();
+                    updateTimerDisplay();
+                } else {
+                    lastVisibilityTime = Date.now();
+                    hideForceCloseWarning();
+                }
+            });
+
+            // beforeunload - ট্যাব ক্লোজ/রিফ্রেশ
+            window.addEventListener('beforeunload', (e) => {
+                if (isLocked) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                    setTimeout(() => {
+                        showForceCloseWarning();
+                        addPenaltyTime(180, "ট্যাব বন্ধ করার চেষ্টার জন্য");
+                    }, 100);
+                    return '';
+                }
+            });
+
+            // pagehide - মোবাইলে ব্যাক/হোম
+            window.addEventListener('pagehide', (e) => {
+                if (isLocked) {
+                    addPenaltyTime(180, "অ্যাপ থেকে বের হওয়ার জন্য");
+                }
+            });
+
+            // unload
+            window.addEventListener('unload', () => {
+                if (isLocked) {
+                    localStorage.setItem('forceExitPenalty', Date.now());
+                }
+            });
+
+            // ইন্টারনেট চেক
+            setInterval(() => {
+                if (isLocked && !navigator.onLine) {
+                    addPenaltyTime(60, "ইন্টারনেট বন্ধ করার জন্য");
+                    tg.showPopup({
+                        title: "ইন্টারনেট বন্ধ!",
+                        message: "+৬০ সেকেন্ড যোগ হয়েছে!",
+                        buttons: [{ type: 'close' }]
+                    });
+                    showRewardAd();
+                    updateTimerDisplay();
+                }
+            }, 3000);
+        }
+
+        // ফোর্স ক্লোজ ওয়ার্নিং
+        function showForceCloseWarning() {
+            document.getElementById('force-close-warning').classList.remove('hidden');
+            setTimeout(hideForceCloseWarning, 3000);
+        }
+
+        function hideForceCloseWarning() {
+            document.getElementById('force-close-warning').classList.add('hidden');
+        }
+
+        // ইনিশিয়ালাইজ
+        function init() {
+            tg.ready();
+            tg.expand();
+            tg.disableClosingConfirmation(); // ক্লোজ কনফার্মেশন বন্ধ
+            tg.enableClosingConfirmation();  // আবার চালু (কনফার্মেশন দেখাবে)
+
+            // ক্লোজ কনফার্মেশন
+            tg.onEvent('closingConfirmation', () => {
+                if (isLocked) {
+                    tg.showPopup({
+                        title: "বের হওয়া যাবে না!",
+                        message: "টাইমার শেষ না হওয়া পর্যন্ত বন্ধ করা যাবে না।",
+                        buttons: [{ type: 'close' }]
+                    });
+                    addPenaltyTime(60, "বন্ধ করার চেষ্টার জন্য");
+                    return false; // বন্ধ হবে না
+                }
+                return true;
+            });
+
+            disableBackButton();
+            detectAbnormalExit();
+            startTimer();
+            startAutoAds();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+
+        // প্রতি ১ সেকেন্ডে লোকালস্টোরেজ চেক (রিওপেনে পেনাল্টি)
+        setInterval(() => {
+            if (isLocked && localStorage.getItem('forceExitPenalty')) {
+                const timestamp = localStorage.getItem('forceExitPenalty');
+                if (Date.now() - timestamp < 60000) { // ১ মিনিটের মধ্যে
+                    addPenaltyTime(300, "অ্যাপ জোর করে বন্ধ করার জন্য");
+                    localStorage.removeItem('forceExitPenalty');
+                    tg.showAlert("অ্যাপ জোর করে বন্ধ করেছেন! +৫ মিনিট যোগ হয়েছে।");
+                    updateTimerDisplay();
+                }
+            }
+        }, 1000);
     </script>
 </body>
 </html>
